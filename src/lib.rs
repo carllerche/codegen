@@ -39,8 +39,8 @@ pub struct Scope {
     /// Imports
     imports: OrderMap<String, OrderMap<String, Import>>,
 
-    /// Contents of the documentation,
-    items: Vec<Item>,
+    /// Contents of the scope.,
+    items: OrderMap<String, Item>,
 }
 
 #[derive(Debug, Clone)]
@@ -247,7 +247,7 @@ impl Scope {
         Scope {
             docs: None,
             imports: OrderMap::new(),
-            items: vec![],
+            items: OrderMap::new(),
         }
     }
 
@@ -264,105 +264,114 @@ impl Scope {
 
     /// Push a new module definition, returning a mutable reference to it.
     pub fn new_module(&mut self, name: &str) -> &mut Module {
-        self.push_module(Module::new(name));
+        self.items.insert(name.to_string(), Item::Module(Module::new(name)));
 
-        match *self.items.last_mut().unwrap() {
+        match self.items[name] {
             Item::Module(ref mut v) => v,
             _ => unreachable!(),
         }
     }
 
-    /// Returns a mutable reference to a module if it is exists in this scope. 
+    /// Return a mutable reference to a module if it exists in this scope. 
     pub fn module_mut(&mut self, name: &str) -> Option<&mut Module> {
-        // TODO: we'd get better performance from changing `items` to an
-        // `OrderMap` keyed by the name of the item...
-        self.items.iter_mut()
-            .find(|i| match *i {
-                &mut Item::Module(ref m) => m.name == name,
-                _ => false,
-            })
-            // XXX this is ugly...
+        self.items.get_mut(name)
             .map(|i| 
                 if let Item::Module(ref mut m) = *i { m } 
                 else { unreachable!() }
             )
     }
 
-    /// Push a module definition.
-    pub fn push_module(&mut self, item: Module) -> &mut Self {
-        self.items.push(Item::Module(item));
-        self
+    /// Return a mutable reference to a module if it exists, or create 
+    /// that module if it does not exist.
+    pub fn module(&mut self, name: &str) -> &mut Module {
+        let item = 
+            self.items.entry(name.to_string())
+                .or_insert_with(|| Item::Module(Module::new(name)))
+                ;
+        if let &mut Item::Module(ref mut m) = item {
+            m
+        } else {
+            unreachable!()
+        }
     }
+
+    // /// Push a module definition.
+    // pub fn push_module(&mut self, item: Module) -> &mut Self {
+    //     self.items.insert(item.name.clone(), Item::Module(item));
+    //     self
+    // }
 
     /// Push a new struct definition, returning a mutable reference to it.
     pub fn new_struct(&mut self, name: &str) -> &mut Struct {
-        self.push_struct(Struct::new(name));
+        self.items.insert(name.to_owned(), Item::Struct(Struct::new(name)));
 
-        match *self.items.last_mut().unwrap() {
+        match self.items[name] {
             Item::Struct(ref mut v) => v,
             _ => unreachable!(),
         }
     }
 
-    /// Push a struct definition
-    pub fn push_struct(&mut self, item: Struct) -> &mut Self {
-        self.items.push(Item::Struct(item));
-        self
-    }
+    // /// Push a struct definition
+    // pub fn push_struct(&mut self, item: Struct) -> &mut Self {
+    //     self.items.insert(item.name.clone(), Item::Struct(item));
+    //     self
+    // }
 
     /// Push a new trait definition, returning a mutable reference to it.
     pub fn new_trait(&mut self, name: &str) -> &mut Trait {
-        self.push_trait(Trait::new(name));
+        
+        self.items.insert(name.to_owned(), Item::Trait(Trait::new(name)));
 
-        match *self.items.last_mut().unwrap() {
+        match self.items[name] {
             Item::Trait(ref mut v) => v,
             _ => unreachable!(),
         }
     }
 
-    /// Push a trait definition
-    pub fn push_trait(&mut self, item: Trait) -> &mut Self {
-        self.items.push(Item::Trait(item));
-        self
-    }
+    // /// Push a trait definition
+    // pub fn push_trait(&mut self, item: Trait) -> &mut Self {
+    //     self.items.insert(item.name.clone(), Item::Trait(item));
+    //     self
+    // }
 
     /// Push a new struct definition, returning a mutable reference to it.
     pub fn new_enum(&mut self, name: &str) -> &mut Enum {
-        self.push_enum(Enum::new(name));
+        self.items.insert(name.to_owned(), Item::Enum(Enum::new(name)));
 
-        match *self.items.last_mut().unwrap() {
+        match self.items[name] {
             Item::Enum(ref mut v) => v,
             _ => unreachable!(),
         }
     }
 
-    /// Push a structure definition
-    pub fn push_enum(&mut self, item: Enum) -> &mut Self {
-        self.items.push(Item::Enum(item));
-        self
-    }
+    // /// Push a structure definition
+    // pub fn push_enum(&mut self, item: Enum) -> &mut Self {
+    //     self.items.push(Item::Enum(item));
+    //     self
+    // }
 
     /// Push a new `impl` block, returning a mutable reference to it.
     pub fn new_impl(&mut self, target: &str) -> &mut Impl {
-        self.push_impl(Impl::new(target));
+        self.items.insert(target.to_owned(), Item::Impl(Impl::new(target)));
 
-        match *self.items.last_mut().unwrap() {
+        match self.items[target] {
             Item::Impl(ref mut v) => v,
             _ => unreachable!(),
         }
     }
 
-    /// Push an `impl` block.
-    pub fn push_impl(&mut self, item: Impl) -> &mut Self {
-        self.items.push(Item::Impl(item));
-        self
-    }
+    // /// Push an `impl` block.
+    // pub fn push_impl(&mut self, item: Impl) -> &mut Self {
+    //     self.items.push(Item::Impl(item));
+    //     self
+    // }
 
     /// Push a raw string to the scope.
     ///
     /// This string will be included verbatim in the formatted string.
     pub fn raw(&mut self, val: &str) -> &mut Self {
-        self.items.push(Item::Raw(val.to_string()));
+        // XXX should the raw string's ordermap key be itself? discuss.
+        self.items.insert(val.to_string(), Item::Raw(val.to_string()));
         self
     }
 
@@ -388,7 +397,7 @@ impl Scope {
             write!(fmt, "\n")?;
         }
 
-        for (i, item) in self.items.iter().enumerate() {
+        for (i, (_, item)) in self.items.iter().enumerate() {
             if i != 0 {
                 write!(fmt, "\n")?;
             }
@@ -498,44 +507,44 @@ impl Module {
         self.scope.new_module(name)
     }
 
-    /// Push a module definition
-    pub fn push_module(&mut self, item: Module) -> &mut Self {
-        self.scope.push_module(item);
-        self
-    }
+    // /// Push a module definition
+    // pub fn push_module(&mut self, item: Module) -> &mut Self {
+    //     self.scope.push_module(item);
+    //     self
+    // }
 
     /// Push a new struct definition, returning a mutable reference to it.
     pub fn new_struct(&mut self, name: &str) -> &mut Struct {
         self.scope.new_struct(name)
     }
 
-    /// Push a structure definition
-    pub fn push_struct(&mut self, item: Struct) -> &mut Self {
-        self.scope.push_struct(item);
-        self
-    }
+    // /// Push a structure definition
+    // pub fn push_struct(&mut self, item: Struct) -> &mut Self {
+    //     self.scope.push_struct(item);
+    //     self
+    // }
 
     /// Push a new enum definition, returning a mutable reference to it.
     pub fn new_enum(&mut self, name: &str) -> &mut Enum {
         self.scope.new_enum(name)
     }
 
-    /// Push an enum definition
-    pub fn push_enum(&mut self, item: Enum) -> &mut Self {
-        self.scope.push_enum(item);
-        self
-    }
+    // /// Push an enum definition
+    // pub fn push_enum(&mut self, item: Enum) -> &mut Self {
+    //     self.scope.push_enum(item);
+    //     self
+    // }
 
     /// Push a new `impl` block, returning a mutable reference to it.
     pub fn new_impl(&mut self, target: &str) -> &mut Impl {
         self.scope.new_impl(target)
     }
 
-    /// Push an `impl` block.
-    pub fn push_impl(&mut self, item: Impl) -> &mut Self {
-        self.scope.push_impl(item);
-        self
-    }
+    // /// Push an `impl` block.
+    // pub fn push_impl(&mut self, item: Impl) -> &mut Self {
+    //     self.scope.push_impl(item);
+    //     self
+    // }
 
     /// Formats the module using the given formatter.
     pub fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {

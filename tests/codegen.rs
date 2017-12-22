@@ -263,3 +263,29 @@ mod foo {
 
     assert_eq!(scope.to_string(), &expect[1..]);
 }
+
+#[test]
+fn module_or_add() {
+    let mut scope = Scope::new();
+    assert!(scope.module_mut("foo").is_none());
+
+    scope.module("foo")
+        .import("bar", "Bar")
+        ;
+    
+    scope.module("foo")
+        .new_struct("Foo")
+        .field("bar", "Bar")
+        ;
+
+    let expect = r#"
+mod foo {
+    use bar::Bar;
+
+    struct Foo {
+        bar: Bar,
+    }
+}"#;
+
+    assert_eq!(scope.to_string(), &expect[1..]);
+}
