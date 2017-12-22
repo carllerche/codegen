@@ -272,6 +272,22 @@ impl Scope {
         }
     }
 
+    /// Returns a mutable reference to a module if it is exists in this scope. 
+    pub fn module_mut(&mut self, name: &str) -> Option<&mut Module> {
+        // TODO: we'd get better performance from changing `items` to an
+        // `OrderMap` keyed by the name of the item...
+        self.items.iter_mut()
+            .find(|i| match *i {
+                &mut Item::Module(ref m) => m.name == name,
+                _ => false,
+            })
+            // XXX this is ugly...
+            .map(|i| 
+                if let Item::Module(ref mut m) = *i { m } 
+                else { unreachable!() }
+            )
+    }
+
     /// Push a module definition.
     pub fn push_module(&mut self, item: Module) -> &mut Self {
         self.items.push(Item::Module(item));
