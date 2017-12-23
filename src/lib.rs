@@ -328,11 +328,11 @@ impl Scope {
         }
     }
 
-    // /// Push a trait definition
-    // pub fn push_trait(&mut self, item: Trait) -> &mut Self {
-    //     self.items.insert(item.name.clone(), Item::Trait(item));
-    //     self
-    // }
+    /// Push a trait definition
+    pub fn push_trait(&mut self, name: &str, item: Trait) -> &mut Self {
+        self.items.insert(name.to_string(), Item::Trait(item));
+        self
+    }
 
     /// Push a new struct definition, returning a mutable reference to it.
     pub fn new_enum(&mut self, name: &str) -> &mut Enum {
@@ -352,7 +352,7 @@ impl Scope {
 
     /// Push a new `impl` block, returning a mutable reference to it.
     pub fn new_impl(&mut self, target: &str) -> &mut Impl {
-        self.items.insert(target.to_owned(), Item::Impl(Impl::new(target)));
+        self.items.insert(target.to_string(), Item::Impl(Impl::new(target)));
 
         match self.items[target] {
             Item::Impl(ref mut v) => v,
@@ -360,11 +360,11 @@ impl Scope {
         }
     }
 
-    // /// Push an `impl` block.
-    // pub fn push_impl(&mut self, item: Impl) -> &mut Self {
-    //     self.items.push(Item::Impl(item));
-    //     self
-    // }
+    /// Push an `impl` block.
+    pub fn push_impl(&mut self, name: &str, item: Impl) -> &mut Self {
+        self.items.insert(name.to_string(), Item::Impl(item));
+        self
+    }
 
     /// Push a raw string to the scope.
     ///
