@@ -27,6 +27,9 @@ extern crate ordermap;
 
 use ordermap::OrderMap;
 use std::fmt::{self, Write};
+use std::rc::Rc;
+use std::borrow::Borrow;
+use std::hash::Hash;
 
 /// Defines a scope.
 ///
@@ -39,13 +42,37 @@ pub struct Scope {
     /// Imports
     imports: OrderMap<String, OrderMap<String, Import>>,
 
+    /// References to the modules defined in this scope.
+    /// 
+    /// These are references to the `Module` items in this scope's `items` 
+    /// vector.
+    modules: OrderMap<RcKey, Module>,
+
     /// Contents of the documentation,
     items: Vec<Item>,
+}
+#[derive(Clone, Eq, PartialEq, Debug, Hash)]
+struct RcKey(Rc<String>);
+
+impl<K> std::cmp::PartialEq<K> for RcKey 
+where 
+    K: Borrow<String>,
+    K: Hash + Eq, 
+{
+    fn eq(&self, key: &K) -> bool {
+        *key.borrow() == *self.0
+    }
+}
+
+impl Borrow<str> for RcKey {
+    fn borrow(&self) -> &str {
+        self.0.as_ref()
+    }
 }
 
 #[derive(Debug, Clone)]
 enum Item {
-    Module(Module),
+    Module(Rc<String>),
     Struct(Struct),
     Trait(Trait),
     Enum(Enum),
@@ -57,7 +84,7 @@ enum Item {
 #[derive(Debug, Clone)]
 pub struct Module {
     /// Module name
-    name: String,
+    name: Rc<String>,
 
     /// Visibility
     vis: Option<String>,
@@ -247,6 +274,7 @@ impl Scope {
         Scope {
             docs: None,
             imports: OrderMap::new(),
+            modules: OrderMap::new(),
             items: vec![],
         }
     }
@@ -266,31 +294,27 @@ impl Scope {
     pub fn new_module(&mut self, name: &str) -> &mut Module {
         self.push_module(Module::new(name));
 
-        match *self.items.last_mut().unwrap() {
-            Item::Module(ref mut v) => v,
-            _ => unreachable!(),
-        }
+        &mut self.modules[name]
     }
 
     /// Returns a mutable reference to a module if it is exists in this scope. 
     pub fn module_mut(&mut self, name: &str) -> Option<&mut Module> {
-        // TODO: we'd get better performance from changing `items` to an
-        // `OrderMap` keyed by the name of the item...
-        self.items.iter_mut()
-            .find(|i| match *i {
-                &mut Item::Module(ref m) => m.name == name,
-                _ => false,
-            })
-            // XXX this is ugly...
-            .map(|i| 
-                if let Item::Module(ref mut m) = *i { m } 
-                else { unreachable!() }
-            )
+        self.modules.get_mut(name)
+    }
+
+    /// Returns a mutable reference to a module, creating it if it does not exist.
+    pub fn module_or_add(&mut self, name: &str) -> &mut Module {
+        if self.modules.contains_key(name) {
+            &mut self.modules[name]
+        } else {
+            self.new_module(name)
+        }
     }
 
     /// Push a module definition.
     pub fn push_module(&mut self, item: Module) -> &mut Self {
-        self.items.push(Item::Module(item));
+        self.items.push(Item::Module(item.name.clone()));
+        self.modules.insert(RcKey(item.name.clone()), item);
         self
     }
 
@@ -394,7 +418,10 @@ impl Scope {
             }
 
             match *item {
-                Item::Module(ref v) => v.fmt(fmt)?,
+                Item::Module(ref v) => {
+                    let key: &str = v.as_ref();
+                    self.modules[key].fmt(fmt)?
+                },
                 Item::Struct(ref v) => v.fmt(fmt)?,
                 Item::Trait(ref v) => v.fmt(fmt)?,
                 Item::Enum(ref v) => v.fmt(fmt)?,
@@ -466,7 +493,7 @@ impl Module {
     /// Return a new, blank module
     pub fn new(name: &str) -> Self {
         Module {
-            name: name.to_string(),
+            name: Rc::new(name.to_string()),
             vis: None,
             docs: None,
             scope: Scope::new(),
@@ -1160,6 +1187,7 @@ impl Fields {
         Ok(())
     }
 }
+
 
 // ===== impl Impl =====
 
