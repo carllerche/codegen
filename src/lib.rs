@@ -251,6 +251,7 @@ pub struct Formatter<'a> {
     dst: &'a mut String,
 
     /// Number of spaces to start a new line with
+    /// 
     spaces: usize,
 
     /// Number of spaces per indentiation
@@ -291,7 +292,7 @@ impl Scope {
     }
 
     /// Returns true if a module named `name` exists in this scope.
-    pub fn cotnains_module<Q: ?Sized>(&self, name: &Q) -> bool 
+    pub fn contains_module<Q: ?Sized>(&self, name: &Q) -> bool 
     where
         Q: Hash + ordermap::Equivalent<RcKey>
     {
@@ -551,6 +552,13 @@ impl Module {
         self
     }
 
+    /// Returns true if a module named `name` exists in this scope.
+    pub fn contains_module<Q: ?Sized>(&self, name: &Q) -> bool 
+    where
+        Q: Hash + ordermap::Equivalent<RcKey>
+    {
+        self.scope.contains_module(name)
+    }
 
     /// Push a new module definition, returning a mutable reference to it.
     /// 
@@ -566,6 +574,17 @@ impl Module {
     /// [`module_or_add`]: #method.module_or_add
     pub fn new_module(&mut self, name: &str) -> &mut Module {
         self.scope.new_module(name)
+    }
+
+    /// Returns a mutable reference to a module if it is exists in this scope. 
+    pub fn module_mut(&mut self, name: &str) -> Option<&mut Module> {
+        self.scope.module_mut(name)
+    }
+
+    /// Returns a mutable reference to a module, creating it if it does 
+    /// not exist.
+    pub fn module_or_add(&mut self, name: &str) -> &mut Module {
+        self.scope.module_or_add(name)
     }
 
     /// Push a module definition.
@@ -584,6 +603,7 @@ impl Module {
         self.scope.push_module(item);
         self
     }
+
 
     /// Push a new struct definition, returning a mutable reference to it.
     pub fn new_struct(&mut self, name: &str) -> &mut Struct {
