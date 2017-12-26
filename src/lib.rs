@@ -29,7 +29,6 @@ use ordermap::OrderMap;
 use std::fmt::{self, Write};
 use std::rc::Rc;
 use std::borrow::Borrow;
-use std::hash::Hash;
 
 /// Defines a scope.
 ///
@@ -51,25 +50,6 @@ pub struct Scope {
     /// Contents of the documentation,
     items: Vec<Item>,
 }
-#[derive(Clone, Eq, PartialEq, Debug, Hash)]
-struct RcKey(Rc<String>);
-
-impl<K> std::cmp::PartialEq<K> for RcKey 
-where 
-    K: Borrow<String>,
-    K: Hash + Eq, 
-{
-    fn eq(&self, key: &K) -> bool {
-        *key.borrow() == *self.0
-    }
-}
-
-impl Borrow<str> for RcKey {
-    fn borrow(&self) -> &str {
-        self.0.as_ref()
-    }
-}
-
 #[derive(Debug, Clone)]
 enum Item {
     Module(Rc<String>),
@@ -263,6 +243,13 @@ pub struct Formatter<'a> {
     /// Number of spaces per indentiation
     indent: usize,
 }
+
+/// Newtype wrapping a `Rc<String>` so it can be used more easily as a hash key.
+/// 
+/// In this case, we wrap `Rc<String>`s in `RcKey` so we can implement 
+/// `Borrow<str>` for it.
+#[derive(Clone, Eq, PartialEq, Debug, Hash)]
+struct RcKey(Rc<String>);
 
 const DEFAULT_INDENT: usize = 4;
 
@@ -1659,5 +1646,14 @@ impl<'a> fmt::Write for Formatter<'a> {
         }
 
         Ok(())
+    }
+}
+
+// ===== impl RcKey =====
+
+impl Borrow<str> for RcKey {
+    #[inline]
+    fn borrow(&self) -> &str {
+        self.0.as_ref()
     }
 }
