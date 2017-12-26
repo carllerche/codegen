@@ -29,6 +29,7 @@ use ordermap::OrderMap;
 use std::fmt::{self, Write};
 use std::rc::Rc;
 use std::borrow::Borrow;
+use std::hash::Hash;
 
 /// Defines a scope.
 ///
@@ -51,6 +52,7 @@ pub struct Scope {
     /// Contents of the documentation,
     items: Vec<Item>,
 }
+
 #[derive(Debug, Clone)]
 enum Item {
     /// A module.
@@ -260,7 +262,7 @@ pub struct Formatter<'a> {
 /// In this case, we wrap `Rc<String>`s in `RcKey` so we can implement 
 /// `Borrow<str>` for it.
 #[derive(Clone, Eq, PartialEq, Debug, Hash)]
-struct RcKey(Rc<String>);
+pub struct RcKey(Rc<String>);
 
 const DEFAULT_INDENT: usize = 4;
 
@@ -286,6 +288,14 @@ impl Scope {
             .or_insert(OrderMap::new())
             .entry(ty.to_string())
             .or_insert_with(|| Import::new(path, ty))
+    }
+
+    /// Returns true if a module named `name` exists in this scope.
+    pub fn cotnains_module<Q: ?Sized>(&self, name: &Q) -> bool 
+    where
+        Q: Hash + ordermap::Equivalent<RcKey>
+    {
+        self.modules.contains_key(name)
     }
 
     /// Push a new module definition, returning a mutable reference to it.
@@ -557,7 +567,7 @@ impl Module {
     pub fn new_module(&mut self, name: &str) -> &mut Module {
         self.scope.new_module(name)
     }
-    
+
     /// Push a module definition.
     /// 
     /// # Note
