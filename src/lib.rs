@@ -41,10 +41,11 @@ pub struct Scope {
     /// Imports
     imports: OrderMap<String, OrderMap<String, Import>>,
 
-    /// References to the modules defined in this scope.
+    /// The modules defined in this scope.
     /// 
-    /// These are references to the `Module` items in this scope's `items` 
-    /// vector.
+    /// Modules are stored in a map rather than in this scope's
+    /// `items` vector so that they may be accessed by name directly
+    /// after being created.
     modules: OrderMap<RcKey, Module>,
 
     /// Contents of the documentation,
@@ -52,6 +53,16 @@ pub struct Scope {
 }
 #[derive(Debug, Clone)]
 enum Item {
+    /// A module.
+    /// 
+    /// Unlike all the other variants of `Item`, this does not hold a `Module` 
+    /// directly, but instead holds an `Rc<String>` (the name of the module). 
+    /// This is because the `Module`s defined in a `Scope` do not live in the 
+    /// `Scope`'s `items` vector, but in its `modules` map. When we want to 
+    /// access the `Module` corresponding to this `Item`, we can use the string
+    /// to index the scope's map of modules. This way, modules can be looked up
+    /// by name, but also are defined at ordered locations in the `items` 
+    /// vector.
     Module(Rc<String>),
     Struct(Struct),
     Trait(Trait),
@@ -278,6 +289,17 @@ impl Scope {
     }
 
     /// Push a new module definition, returning a mutable reference to it.
+    /// 
+    /// # Note
+    /// 
+    /// Since a module's name must uniquely identify it within the scope in 
+    /// which it is defined, calling this function with a name already used 
+    /// in this scope will (silently) clobber the existing module definition.
+    /// 
+    /// In many cases, the [`module_or_add`] function is preferrable, as it will
+    /// return the existing definition instead.
+    /// 
+    /// [`module_or_add`]: #method.module_or_add
     pub fn new_module(&mut self, name: &str) -> &mut Module {
         self.push_module(Module::new(name));
 
@@ -289,7 +311,8 @@ impl Scope {
         self.modules.get_mut(name)
     }
 
-    /// Returns a mutable reference to a module, creating it if it does not exist.
+    /// Returns a mutable reference to a module, creating it if it does 
+    /// not exist.
     pub fn module_or_add(&mut self, name: &str) -> &mut Module {
         if self.modules.contains_key(name) {
             &mut self.modules[name]
@@ -299,6 +322,17 @@ impl Scope {
     }
 
     /// Push a module definition.
+    /// 
+    /// # Note
+    /// 
+    /// Since a module's name must uniquely identify it within the scope in 
+    /// which it is defined, pushing a module whose name is already defined
+    /// in this scope will clobber the existing module definition.
+    /// 
+    /// In many cases, the [`module_or_add`] function is preferrable, as it will
+    /// return the existing definition instead.
+    /// 
+    /// [`module_or_add`]: #method.module_or_add
     pub fn push_module(&mut self, item: Module) -> &mut Self {
         self.items.push(Item::Module(item.name.clone()));
         self.modules.insert(RcKey(item.name.clone()), item);
@@ -507,12 +541,35 @@ impl Module {
         self
     }
 
+
     /// Push a new module definition, returning a mutable reference to it.
+    /// 
+    /// # Note
+    /// 
+    /// Since a module's name must uniquely identify it within the scope in 
+    /// which it is defined, calling this function with a name already used 
+    /// in this scope will (silently) clobber the existing module definition.
+    /// 
+    /// In many cases, the [`module_or_add`] function is preferrable, as it will
+    /// return the existing definition instead.
+    /// 
+    /// [`module_or_add`]: #method.module_or_add
     pub fn new_module(&mut self, name: &str) -> &mut Module {
         self.scope.new_module(name)
     }
-
-    /// Push a module definition
+    
+    /// Push a module definition.
+    /// 
+    /// # Note
+    /// 
+    /// Since a module's name must uniquely identify it within the scope in 
+    /// which it is defined, pushing a module whose name is already defined
+    /// in this scope will clobber the existing module definition.
+    /// 
+    /// In many cases, the [`module_or_add`] function is preferrable, as it will
+    /// return the existing definition instead.
+    /// 
+    /// [`module_or_add`]: #method.module_or_add
     pub fn push_module(&mut self, item: Module) -> &mut Self {
         self.scope.push_module(item);
         self
