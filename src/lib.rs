@@ -27,8 +27,6 @@ extern crate ordermap;
 
 use ordermap::OrderMap;
 use std::fmt::{self, Write};
-use std::rc::Rc;
-use std::borrow::Borrow;
 use std::hash::Hash;
 
 /// Defines a scope.
@@ -47,7 +45,7 @@ pub struct Scope {
     /// Modules are stored in a map rather than in this scope's
     /// `items` vector so that they may be accessed by name directly
     /// after being created.
-    modules: OrderMap<RcKey, Module>,
+    modules: OrderMap<String, Module>,
 
     /// Contents of the documentation,
     items: Vec<Item>,
@@ -65,7 +63,7 @@ enum Item {
     /// to index the scope's map of modules. This way, modules can be looked up
     /// by name, but also are defined at ordered locations in the `items` 
     /// vector.
-    Module(Rc<String>),
+    Module(String),
     Struct(Struct),
     Trait(Trait),
     Enum(Enum),
@@ -77,7 +75,7 @@ enum Item {
 #[derive(Debug, Clone)]
 pub struct Module {
     /// Module name
-    name: Rc<String>,
+    name: String,
 
     /// Visibility
     vis: Option<String>,
@@ -257,13 +255,6 @@ pub struct Formatter<'a> {
     indent: usize,
 }
 
-/// Newtype wrapping a `Rc<String>` so it can be used more easily as a hash key.
-/// 
-/// In this case, we wrap `Rc<String>`s in `RcKey` so we can implement 
-/// `Borrow<str>` for it.
-#[derive(Clone, Eq, PartialEq, Debug, Hash)]
-pub struct RcKey(Rc<String>);
-
 const DEFAULT_INDENT: usize = 4;
 
 // ===== impl Scope =====
@@ -313,7 +304,7 @@ impl Scope {
                                      name: &Q) 
                                      -> Option<&mut Module> 
     where
-        Q: Hash + ordermap::Equivalent<RcKey>,
+        Q: Hash + ordermap::Equivalent<String>,
     {
         self.modules.get_mut(name)
     }
@@ -321,7 +312,7 @@ impl Scope {
     /// Returns a mutable reference to a module if it is exists in this scope. 
     pub fn get_module<Q: ?Sized>(&self, name: &Q) -> Option<&Module>
     where
-        Q: Hash + ordermap::Equivalent<RcKey>,
+        Q: Hash + ordermap::Equivalent<String>,
     {
         self.modules.get(name)
     }
@@ -351,7 +342,7 @@ impl Scope {
     pub fn push_module(&mut self, item: Module) -> &mut Self {
         assert!(self.get_module(&item.name).is_none());
         self.items.push(Item::Module(item.name.clone()));
-        self.modules.insert(RcKey(item.name.clone()), item);
+        self.modules.insert(item.name.clone(), item);
         self
     }
 
@@ -455,10 +446,7 @@ impl Scope {
             }
 
             match *item {
-                Item::Module(ref v) => {
-                    let key: &str = v.as_ref();
-                    self.modules[key].fmt(fmt)?
-                },
+                Item::Module(ref v) => self.modules[v].fmt(fmt)?,
                 Item::Struct(ref v) => v.fmt(fmt)?,
                 Item::Trait(ref v) => v.fmt(fmt)?,
                 Item::Enum(ref v) => v.fmt(fmt)?,
@@ -530,7 +518,7 @@ impl Module {
     /// Return a new, blank module
     pub fn new(name: &str) -> Self {
         Module {
-            name: Rc::new(name.to_string()),
+            name: name.to_string(),
             vis: None,
             docs: None,
             scope: Scope::new(),
@@ -576,7 +564,7 @@ impl Module {
     /// Returns a reference to a module if it is exists in this scope. 
     pub fn get_module<Q: ?Sized>(&self, name: &Q) -> Option<&Module> 
     where
-        Q: Hash + ordermap::Equivalent<RcKey>,
+        Q: Hash + ordermap::Equivalent<String>,
     {
         self.scope.get_module(name)
     }
@@ -586,7 +574,7 @@ impl Module {
                                      name: &Q) 
                                      -> Option<&mut Module> 
     where
-        Q: Hash + ordermap::Equivalent<RcKey>,
+        Q: Hash + ordermap::Equivalent<String>,
     {
         self.scope.get_module_mut(name)
     }
@@ -1743,21 +1731,5 @@ impl<'a> fmt::Write for Formatter<'a> {
         }
 
         Ok(())
-    }
-}
-
-// ===== impl RcKey =====
-
-impl Borrow<str> for RcKey {
-    #[inline]
-    fn borrow(&self) -> &str {
-        self.0.as_ref()
-    }
-}
-
-impl Borrow<Rc<String>> for RcKey {
-    #[inline]
-    fn borrow(&self) -> &Rc<String> {
-        &self.0
     }
 }
