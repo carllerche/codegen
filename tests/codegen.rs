@@ -247,7 +247,7 @@ fn module_mut() {
         .import("bar", "Bar")
         ;
 
-    scope.module_mut("foo").expect("module_mut")
+    scope.get_module_mut("foo").expect("module_mut")
         .new_struct("Foo")
         .field("bar", "Bar")
         ;
@@ -267,7 +267,7 @@ mod foo {
 #[test]
 fn module_or_add() {
     let mut scope = Scope::new();
-    assert!(scope.module_mut("foo").is_none());
+    assert!(scope.get_module("foo").is_none());
 
     scope.module_or_add("foo")
         .import("bar", "Bar")

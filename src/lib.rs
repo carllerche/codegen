@@ -291,14 +291,6 @@ impl Scope {
             .or_insert_with(|| Import::new(path, ty))
     }
 
-    /// Returns true if a module named `name` exists in this scope.
-    pub fn contains_module<Q: ?Sized>(&self, name: &Q) -> bool 
-    where
-        Q: Hash + ordermap::Equivalent<RcKey>
-    {
-        self.modules.contains_key(name)
-    }
-
     /// Push a new module definition, returning a mutable reference to it.
     /// 
     /// # Note
@@ -318,8 +310,21 @@ impl Scope {
     }
 
     /// Returns a mutable reference to a module if it is exists in this scope. 
-    pub fn module_mut(&mut self, name: &str) -> Option<&mut Module> {
+    pub fn get_module_mut<Q: ?Sized>(&mut self, 
+                                     name: &Q) 
+                                     -> Option<&mut Module> 
+    where
+        Q: Hash + ordermap::Equivalent<RcKey>,
+    {
         self.modules.get_mut(name)
+    }
+
+    /// Returns a mutable reference to a module if it is exists in this scope. 
+    pub fn get_module<Q: ?Sized>(&self, name: &Q) -> Option<&Module>
+    where
+        Q: Hash + ordermap::Equivalent<RcKey>,
+    {
+        self.modules.get(name)
     }
 
     /// Returns a mutable reference to a module, creating it if it does 
@@ -552,14 +557,6 @@ impl Module {
         self
     }
 
-    /// Returns true if a module named `name` exists in this scope.
-    pub fn contains_module<Q: ?Sized>(&self, name: &Q) -> bool 
-    where
-        Q: Hash + ordermap::Equivalent<RcKey>
-    {
-        self.scope.contains_module(name)
-    }
-
     /// Push a new module definition, returning a mutable reference to it.
     /// 
     /// # Note
@@ -576,9 +573,22 @@ impl Module {
         self.scope.new_module(name)
     }
 
+    /// Returns a reference to a module if it is exists in this scope. 
+    pub fn get_module<Q: ?Sized>(&self, name: &Q) -> Option<&Module> 
+    where
+        Q: Hash + ordermap::Equivalent<RcKey>,
+    {
+        self.scope.get_module(name)
+    }
+
     /// Returns a mutable reference to a module if it is exists in this scope. 
-    pub fn module_mut(&mut self, name: &str) -> Option<&mut Module> {
-        self.scope.module_mut(name)
+    pub fn get_module_mut<Q: ?Sized>(&mut self, 
+                                     name: &Q) 
+                                     -> Option<&mut Module> 
+    where
+        Q: Hash + ordermap::Equivalent<RcKey>,
+    {
+        self.scope.get_module_mut(name)
     }
 
     /// Returns a mutable reference to a module, creating it if it does 
