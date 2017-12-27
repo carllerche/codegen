@@ -250,8 +250,7 @@ pub struct Formatter<'a> {
     /// Write destination
     dst: &'a mut String,
 
-    /// Number of spaces to start a new line with
-    /// 
+    /// Number of spaces to start a new line with.
     spaces: usize,
 
     /// Number of spaces per indentiation
@@ -293,11 +292,11 @@ impl Scope {
 
     /// Push a new module definition, returning a mutable reference to it.
     /// 
-    /// # Note
+    /// # Panics
     /// 
     /// Since a module's name must uniquely identify it within the scope in 
-    /// which it is defined, calling this function with a name already used 
-    /// in this scope will (silently) clobber the existing module definition.
+    /// which it is defined, pushing a module whose name is already defined
+    /// in this scope will cause this function to panic.
     /// 
     /// In many cases, the [`module_or_add`] function is preferrable, as it will
     /// return the existing definition instead.
@@ -339,17 +338,18 @@ impl Scope {
 
     /// Push a module definition.
     /// 
-    /// # Note
+    /// # Panics
     /// 
     /// Since a module's name must uniquely identify it within the scope in 
     /// which it is defined, pushing a module whose name is already defined
-    /// in this scope will clobber the existing module definition.
+    /// in this scope will cause this function to panic.
     /// 
     /// In many cases, the [`module_or_add`] function is preferrable, as it will
     /// return the existing definition instead.
     /// 
     /// [`module_or_add`]: #method.module_or_add
     pub fn push_module(&mut self, item: Module) -> &mut Self {
+        assert!(self.get_module(&item.name).is_none());
         self.items.push(Item::Module(item.name.clone()));
         self.modules.insert(RcKey(item.name.clone()), item);
         self
@@ -559,11 +559,11 @@ impl Module {
 
     /// Push a new module definition, returning a mutable reference to it.
     /// 
-    /// # Note
+    /// # Panics
     /// 
     /// Since a module's name must uniquely identify it within the scope in 
-    /// which it is defined, calling this function with a name already used 
-    /// in this scope will (silently) clobber the existing module definition.
+    /// which it is defined, pushing a module whose name is already defined
+    /// in this scope will cause this function to panic.
     /// 
     /// In many cases, the [`module_or_add`] function is preferrable, as it will
     /// return the existing definition instead.
@@ -599,11 +599,11 @@ impl Module {
 
     /// Push a module definition.
     /// 
-    /// # Note
+    /// # Panics
     /// 
     /// Since a module's name must uniquely identify it within the scope in 
     /// which it is defined, pushing a module whose name is already defined
-    /// in this scope will clobber the existing module definition.
+    /// in this scope will cause this function to panic.
     /// 
     /// In many cases, the [`module_or_add`] function is preferrable, as it will
     /// return the existing definition instead.
@@ -1752,5 +1752,12 @@ impl Borrow<str> for RcKey {
     #[inline]
     fn borrow(&self) -> &str {
         self.0.as_ref()
+    }
+}
+
+impl Borrow<Rc<String>> for RcKey {
+    #[inline]
+    fn borrow(&self) -> &Rc<String> {
+        &self.0
     }
 }
