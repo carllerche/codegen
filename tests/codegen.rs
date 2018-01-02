@@ -265,15 +265,15 @@ mod foo {
 }
 
 #[test]
-fn module_or_add() {
+fn get_or_new_module() {
     let mut scope = Scope::new();
     assert!(scope.get_module("foo").is_none());
 
-    scope.module_or_add("foo")
+    scope.get_or_new_module("foo")
         .import("bar", "Bar")
         ;
     
-    scope.module_or_add("foo")
+    scope.get_or_new_module("foo")
         .new_struct("Foo")
         .field("bar", "Bar")
         ;
