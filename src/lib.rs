@@ -289,10 +289,10 @@ impl Scope {
     /// which it is defined, pushing a module whose name is already defined
     /// in this scope will cause this function to panic.
     /// 
-    /// In many cases, the [`get_or_new_module`] function is preferrable, as it will
-    /// return the existing definition instead.
+    /// In many cases, the [`get_or_add_module`] function is preferrable, as it 
+    /// will return the existing definition instead.
     /// 
-    /// [`get_or_new_module`]: #method.get_or_new_module
+    /// [`get_or_add_module`]: #method.get_or_add_module
     pub fn new_module(&mut self, name: &str) -> &mut Module {
         self.push_module(Module::new(name));
 
@@ -319,7 +319,7 @@ impl Scope {
 
     /// Returns a mutable reference to a module, creating it if it does 
     /// not exist.
-    pub fn get_or_new_module(&mut self, name: &str) -> &mut Module {
+    pub fn get_or_add_module(&mut self, name: &str) -> &mut Module {
         if self.modules.contains_key(name) {
             &mut self.modules[name]
         } else {
@@ -335,10 +335,10 @@ impl Scope {
     /// which it is defined, pushing a module whose name is already defined
     /// in this scope will cause this function to panic.
     /// 
-    /// In many cases, the [`get_or_new_module`] function is preferrable, as it will
-    /// return the existing definition instead.
+    /// In many cases, the [`get_or_add_module`] function is preferrable, as it 
+    /// will return the existing definition instead.
     /// 
-    /// [`get_or_new_module`]: #method.get_or_new_module
+    /// [`get_or_add_module`]: #method.get_or_add_module
     pub fn push_module(&mut self, item: Module) -> &mut Self {
         assert!(self.get_module(&item.name).is_none());
         self.items.push(Item::Module(item.name.clone()));
@@ -553,10 +553,10 @@ impl Module {
     /// which it is defined, pushing a module whose name is already defined
     /// in this scope will cause this function to panic.
     /// 
-    /// In many cases, the [`get_or_new_module`] function is preferrable, as it will
-    /// return the existing definition instead.
+    /// In many cases, the [`get_or_add_module`] function is preferrable, as it 
+    /// will return the existing definition instead.
     /// 
-    /// [`get_or_new_module`]: #method.get_or_new_module
+    /// [`get_or_add_module`]: #method.get_or_add_module
     pub fn new_module(&mut self, name: &str) -> &mut Module {
         self.scope.new_module(name)
     }
@@ -581,8 +581,8 @@ impl Module {
 
     /// Returns a mutable reference to a module, creating it if it does 
     /// not exist.
-    pub fn get_or_new_module(&mut self, name: &str) -> &mut Module {
-        self.scope.get_or_new_module(name)
+    pub fn get_or_add_module(&mut self, name: &str) -> &mut Module {
+        self.scope.get_or_add_module(name)
     }
 
     /// Push a module definition.
@@ -593,10 +593,10 @@ impl Module {
     /// which it is defined, pushing a module whose name is already defined
     /// in this scope will cause this function to panic.
     /// 
-    /// In many cases, the [`get_or_new_module`] function is preferrable, as it will
-    /// return the existing definition instead.
+    /// In many cases, the [`get_or_add_module`] function is preferrable, as it
+    /// will return the existing definition instead.
     /// 
-    /// [`get_or_new_module`]: #method.get_or_new_module
+    /// [`get_or_add_module`]: #method.get_or_add_module
     pub fn push_module(&mut self, item: Module) -> &mut Self {
         self.scope.push_module(item);
         self
