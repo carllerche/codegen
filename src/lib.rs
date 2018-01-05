@@ -610,6 +610,9 @@ impl Struct {
         self.fields.fmt(fmt)?;
 
         match self.fields {
+            Fields::Empty => {
+                write!(fmt, ";\n")?;
+            }
             Fields::Tuple(..) => {
                 write!(fmt, ";\n")?;
             }
