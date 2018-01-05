@@ -2,9 +2,9 @@
 //!
 //! The general strategy for using the crate is as follows:
 //!
-//! 1) Create a `Scope` instance.
-//! 2) Use the builder API to add elements to the scope.
-//! 3) Call `Scope::to_string()` to get the generated code.
+//! 1. Create a `Scope` instance.
+//! 2. Use the builder API to add elements to the scope.
+//! 3. Call `Scope::to_string()` to get the generated code.
 //!
 //! For example:
 //!
