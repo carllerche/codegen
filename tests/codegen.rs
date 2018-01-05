@@ -272,7 +272,7 @@ fn get_or_new_module() {
     scope.get_or_new_module("foo")
         .import("bar", "Bar")
         ;
-    
+
     scope.get_or_new_module("foo")
         .new_struct("Foo")
         .field("bar", "Bar")
