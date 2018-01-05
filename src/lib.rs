@@ -27,7 +27,6 @@ extern crate ordermap;
 
 use ordermap::OrderMap;
 use std::fmt::{self, Write};
-use std::hash::Hash;
 
 /// Defines a scope.
 ///
@@ -40,30 +39,13 @@ pub struct Scope {
     /// Imports
     imports: OrderMap<String, OrderMap<String, Import>>,
 
-    /// The modules defined in this scope.
-    /// 
-    /// Modules are stored in a map rather than in this scope's
-    /// `items` vector so that they may be accessed by name directly
-    /// after being created.
-    modules: OrderMap<String, Module>,
-
     /// Contents of the documentation,
     items: Vec<Item>,
 }
 
 #[derive(Debug, Clone)]
 enum Item {
-    /// A module.
-    /// 
-    /// Unlike all the other variants of `Item`, this does not hold a `Module` 
-    /// directly, but instead holds an `Rc<String>` (the name of the module). 
-    /// This is because the `Module`s defined in a `Scope` do not live in the 
-    /// `Scope`'s `items` vector, but in its `modules` map. When we want to 
-    /// access the `Module` corresponding to this `Item`, we can use the string
-    /// to index the scope's map of modules. This way, modules can be looked up
-    /// by name, but also are defined at ordered locations in the `items` 
-    /// vector.
-    Module(String),
+    Module(Module),
     Struct(Struct),
     Trait(Trait),
     Enum(Enum),
@@ -265,7 +247,6 @@ impl Scope {
         Scope {
             docs: None,
             imports: OrderMap::new(),
-            modules: OrderMap::new(),
             items: vec![],
         }
     }
@@ -289,14 +270,17 @@ impl Scope {
     /// which it is defined, pushing a module whose name is already defined
     /// in this scope will cause this function to panic.
     /// 
-    /// In many cases, the [`get_or_new_module`] function is preferrable, as it will
-    /// return the existing definition instead.
+    /// In many cases, the [`get_or_new_module`] function is preferrable, as it 
+    /// will return the existing definition instead.
     /// 
     /// [`get_or_new_module`]: #method.get_or_new_module
     pub fn new_module(&mut self, name: &str) -> &mut Module {
         self.push_module(Module::new(name));
 
-        &mut self.modules[name]
+        match *self.items.last_mut().unwrap() {
+            Item::Module(ref mut v) => v,
+            _ => unreachable!(),
+        }
     }
 
     /// Returns a mutable reference to a module if it is exists in this scope. 
@@ -304,24 +288,45 @@ impl Scope {
                                      name: &Q) 
                                      -> Option<&mut Module> 
     where
-        Q: Hash + ordermap::Equivalent<String>,
+        String: PartialEq<Q>,
     {
-        self.modules.get_mut(name)
+        self.items.iter_mut()
+            .find(|item| if let &mut Item::Module(ref module) = *item { 
+                module.name == *name 
+            } else {
+                false
+            })
+            .map(|item| if let Item::Module(ref mut module) = *item { 
+                module
+            } else {
+                unreachable!()
+            })
     }
+    
 
     /// Returns a mutable reference to a module if it is exists in this scope. 
     pub fn get_module<Q: ?Sized>(&self, name: &Q) -> Option<&Module>
     where
-        Q: Hash + ordermap::Equivalent<String>,
+        String: PartialEq<Q>,
     {
-        self.modules.get(name)
+        self.items.iter()
+            .find(|item| if let &Item::Module(ref module) = *item { 
+                module.name == *name 
+            } else {
+                false
+            })
+            .map(|item| if let Item::Module(ref module) = *item { 
+                module
+            } else {
+                unreachable!()
+            })
     }
 
     /// Returns a mutable reference to a module, creating it if it does 
     /// not exist.
     pub fn get_or_new_module(&mut self, name: &str) -> &mut Module {
-        if self.modules.contains_key(name) {
-            &mut self.modules[name]
+        if self.get_module(name).is_some() {
+            self.get_module_mut(name).unwrap()
         } else {
             self.new_module(name)
         }
@@ -341,8 +346,7 @@ impl Scope {
     /// [`get_or_new_module`]: #method.get_or_new_module
     pub fn push_module(&mut self, item: Module) -> &mut Self {
         assert!(self.get_module(&item.name).is_none());
-        self.items.push(Item::Module(item.name.clone()));
-        self.modules.insert(item.name.clone(), item);
+        self.items.push(Item::Module(item));
         self
     }
 
@@ -446,7 +450,7 @@ impl Scope {
             }
 
             match *item {
-                Item::Module(ref v) => self.modules[v].fmt(fmt)?,
+                Item::Module(ref v) => v.fmt(fmt)?,
                 Item::Struct(ref v) => v.fmt(fmt)?,
                 Item::Trait(ref v) => v.fmt(fmt)?,
                 Item::Enum(ref v) => v.fmt(fmt)?,
@@ -553,8 +557,8 @@ impl Module {
     /// which it is defined, pushing a module whose name is already defined
     /// in this scope will cause this function to panic.
     /// 
-    /// In many cases, the [`get_or_new_module`] function is preferrable, as it will
-    /// return the existing definition instead.
+    /// In many cases, the [`get_or_new_module`] function is preferrable, as it 
+    /// will return the existing definition instead.
     /// 
     /// [`get_or_new_module`]: #method.get_or_new_module
     pub fn new_module(&mut self, name: &str) -> &mut Module {
@@ -562,9 +566,9 @@ impl Module {
     }
 
     /// Returns a reference to a module if it is exists in this scope. 
-    pub fn get_module<Q: ?Sized>(&self, name: &Q) -> Option<&Module> 
+    pub fn get_module<Q: ?Sized>(&self, name: &Q) -> Option<&Module>
     where
-        Q: Hash + ordermap::Equivalent<String>,
+        String: PartialEq<Q>,
     {
         self.scope.get_module(name)
     }
@@ -574,7 +578,7 @@ impl Module {
                                      name: &Q) 
                                      -> Option<&mut Module> 
     where
-        Q: Hash + ordermap::Equivalent<String>,
+        String: PartialEq<Q>,
     {
         self.scope.get_module_mut(name)
     }
