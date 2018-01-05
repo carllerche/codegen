@@ -291,16 +291,12 @@ impl Scope {
         String: PartialEq<Q>,
     {
         self.items.iter_mut()
-            .find(|item| if let &mut Item::Module(ref module) = *item { 
-                module.name == *name 
-            } else {
-                false
+            .filter_map(|item| match item {
+                &mut Item::Module(ref mut module) if module.name == *name =>
+                    Some(module),
+                _ => None,
             })
-            .map(|item| if let Item::Module(ref mut module) = *item { 
-                module
-            } else {
-                unreachable!()
-            })
+            .next()
     }
     
 
@@ -310,16 +306,12 @@ impl Scope {
         String: PartialEq<Q>,
     {
         self.items.iter()
-            .find(|item| if let &Item::Module(ref module) = *item { 
-                module.name == *name 
-            } else {
-                false
+            .filter_map(|item| match item {
+                &Item::Module(ref module) if module.name == *name =>
+                    Some(module),
+                _ => None,
             })
-            .map(|item| if let Item::Module(ref module) = *item { 
-                module
-            } else {
-                unreachable!()
-            })
+            .next()
     }
 
     /// Returns a mutable reference to a module, creating it if it does 
