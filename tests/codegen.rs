@@ -27,6 +27,18 @@ struct Foo {
 }
 
 #[test]
+fn empty_struct() {
+    let mut scope = Scope::new();
+
+    scope.new_struct("Foo");
+
+    let expect = r#"
+struct Foo;"#;
+
+    assert_eq!(scope.to_string(), &expect[1..]);
+}
+
+#[test]
 fn two_structs() {
     let mut scope = Scope::new();
 
