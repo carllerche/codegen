@@ -313,7 +313,7 @@ impl Scope {
             .next()
     }
 
-    /// Returns a mutable reference to a module, creating it if it doesn
+    /// Returns a mutable reference to a module, creating it if it does
     /// not exist.
     pub fn get_or_new_module(&mut self, name: &str) -> &mut Module {
         if self.get_module(name).is_some() {
