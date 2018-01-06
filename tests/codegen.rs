@@ -47,11 +47,21 @@ fn single_struct_documented_field() {
     let mut scope = Scope::new();
 
     let doc = "Field's documentation";
+    let anot = r#"#[serde(rename = "bar")]"#;
 
     let mut struct_ = Struct::new("Foo");
 
     let mut field1 = Field::new("one", "usize");
     field1.with_documentation(doc);
+    struct_.push_field(field1);
+
+    let mut field2 = Field::new("two", "usize");
+    field2.with_annotation(anot);
+    struct_.push_field(field2);
+
+    let mut field3 = Field::new("three", "usize");
+    field3.with_documentation(doc).with_annotation(anot);
+    struct_.push_field(field3);
 
     scope.push_struct(struct_);
 
@@ -59,6 +69,11 @@ fn single_struct_documented_field() {
 struct Foo {
     /// Field's documentation
     one: usize,
+    #[serde(rename = "bar")]
+    two: usize,
+    /// Field's documentation
+    #[serde(rename = "bar")]
+    three: usize,
 }"#;
 
     assert_eq!(scope.to_string(), &expect[1..]);

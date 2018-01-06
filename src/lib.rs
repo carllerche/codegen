@@ -137,6 +137,9 @@ pub struct Field {
 
     /// Field documentation
     documentation: String,
+
+    /// Field annotation
+    annotation: String,
 }
 
 /// Defines an associated type.
@@ -1097,6 +1100,7 @@ impl Field {
             name: name.into(),
             ty: ty.into(),
             documentation: String::new(),
+            annotation: String::new(),
         }
     }
 
@@ -1106,6 +1110,11 @@ impl Field {
         self
     }
 
+    /// Set field's annotation.
+    pub fn with_annotation(&mut self, annotation: &str) -> &mut Self {
+        self.annotation = annotation.into();
+        self
+    }
 }
 
 // ===== impl Fields =====
@@ -1133,6 +1142,7 @@ impl Fields {
             name: name.to_string(),
             ty: ty.into(),
             documentation: String::new(),
+            annotation: String::new(),
         })
     }
 
@@ -1161,6 +1171,9 @@ impl Fields {
                     for f in fields {
                         if !f.documentation.is_empty() {
                             write!(fmt, "/// {}\n", f.documentation)?;
+                        }
+                        if !f.annotation.is_empty() {
+                            write!(fmt, "{}\n", f.annotation)?;
                         }
                         write!(fmt, "{}: ", f.name)?;
                         f.ty.fmt(fmt)?;
@@ -1238,6 +1251,7 @@ impl Impl {
             name: name.to_string(),
             ty: ty.into(),
             documentation: String::new(),
+            annotation: String::new(),
         });
 
         self
@@ -1382,7 +1396,11 @@ impl Function {
         self.args.push(Field {
             name: name.to_string(),
             ty: ty.into(),
+            // While a `Field` is used here, both `documentation`
+            // and `annotation` does not make sense for function arguments.
+            // Simply use empty strings.
             documentation: String::new(),
+            annotation: String::new(),
         });
 
         self
