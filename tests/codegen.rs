@@ -1,6 +1,6 @@
 extern crate codegen;
 
-use codegen::Scope;
+use codegen::{Field, Scope, Struct};
 
 #[test]
 fn empty_scope() {
@@ -21,6 +21,22 @@ fn single_struct() {
 struct Foo {
     one: usize,
     two: String,
+}"#;
+
+    assert_eq!(scope.to_string(), &expect[1..]);
+}
+
+#[test]
+fn struct_with_pushed_field() {
+    let mut scope = Scope::new();
+    let mut struct_ = Struct::new("Foo");
+    let mut field = Field::new("one", "usize");
+    struct_.push_field(field);
+    scope.push_struct(struct_);
+
+    let expect = r#"
+struct Foo {
+    one: usize,
 }"#;
 
     assert_eq!(scope.to_string(), &expect[1..]);
