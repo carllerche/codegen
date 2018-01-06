@@ -128,7 +128,7 @@ enum Fields {
 
 /// Defines a struct field.
 #[derive(Debug, Clone)]
-struct Field {
+pub struct Field {
     /// Field name
     name: String,
 
