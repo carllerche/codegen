@@ -1101,26 +1101,28 @@ impl Field {
 // ===== impl Fields =====
 
 impl Fields {
-    fn named<T>(&mut self, name: &str, ty: T) -> &mut Self
-    where T: Into<Type>,
+    fn push_named(&mut self, field: Field) -> &mut Self
     {
         match *self {
             Fields::Empty => {
-                *self = Fields::Named(vec![Field {
-                    name: name.to_string(),
-                    ty: ty.into(),
-                }]);
+                *self = Fields::Named(vec![field]);
             }
             Fields::Named(ref mut fields) => {
-                fields.push(Field {
-                    name: name.to_string(),
-                    ty: ty.into(),
-                });
+                fields.push(field);
             }
             _ => panic!("field list is named"),
-        }
+        };
 
         self
+    }
+
+    fn named<T>(&mut self, name: &str, ty: T) -> &mut Self
+    where T: Into<Type>,
+    {
+        self.push_named(Field {
+            name: name.to_string(),
+            ty: ty.into(),
+        })
     }
 
     fn tuple<T>(&mut self, ty: T) -> &mut Self
