@@ -134,6 +134,9 @@ pub struct Field {
 
     /// Field type
     ty: Type,
+
+    /// Field documentation
+    documentation: String,
 }
 
 /// Defines an associated type.
@@ -1093,7 +1096,14 @@ impl Field {
         Field {
             name: name.into(),
             ty: ty.into(),
+            documentation: String::new(),
         }
+    }
+
+    /// Set field's documentation.
+    pub fn with_documentation(&mut self, documentation: &str) -> &mut Self {
+        self.documentation = documentation.into();
+        self
     }
 
 }
@@ -1122,6 +1132,7 @@ impl Fields {
         self.push_named(Field {
             name: name.to_string(),
             ty: ty.into(),
+            documentation: String::new(),
         })
     }
 
@@ -1148,6 +1159,9 @@ impl Fields {
 
                 fmt.block(|fmt| {
                     for f in fields {
+                        if !f.documentation.is_empty() {
+                            write!(fmt, "/// {}\n", f.documentation)?;
+                        }
                         write!(fmt, "{}: ", f.name)?;
                         f.ty.fmt(fmt)?;
                         write!(fmt, ",\n")?;
@@ -1223,6 +1237,7 @@ impl Impl {
         self.assoc_tys.push(Field {
             name: name.to_string(),
             ty: ty.into(),
+            documentation: String::new(),
         });
 
         self
@@ -1367,6 +1382,7 @@ impl Function {
         self.args.push(Field {
             name: name.to_string(),
             ty: ty.into(),
+            documentation: String::new(),
         });
 
         self

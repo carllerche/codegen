@@ -43,6 +43,28 @@ struct Foo {
 }
 
 #[test]
+fn single_struct_documented_field() {
+    let mut scope = Scope::new();
+
+    let doc = "Field's documentation";
+
+    let mut struct_ = Struct::new("Foo");
+
+    let mut field1 = Field::new("one", "usize");
+    field1.with_documentation(doc);
+
+    scope.push_struct(struct_);
+
+    let expect = r#"
+struct Foo {
+    /// Field's documentation
+    one: usize,
+}"#;
+
+    assert_eq!(scope.to_string(), &expect[1..]);
+}
+
+#[test]
 fn empty_struct() {
     let mut scope = Scope::new();
 
