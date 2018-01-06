@@ -1083,6 +1083,21 @@ impl AssociatedType {
     }
 }
 
+// ===== impl Field =====
+
+impl Field {
+    /// Return a field definition with the provided name and type
+    pub fn new<T>(name: &str, ty: T) -> Self
+    where T: Into<Type>,
+    {
+        Field {
+            name: name.into(),
+            ty: ty.into(),
+        }
+    }
+
+}
+
 // ===== impl Fields =====
 
 impl Fields {
