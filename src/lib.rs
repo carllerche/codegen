@@ -582,6 +582,16 @@ impl Struct {
         self
     }
 
+    /// Push a named field to the struct.
+    ///
+    /// A struct can either set named fields with this function or tuple fields
+    /// with `push_tuple_field`, but not both.
+    pub fn push_field(&mut self, field: Field) -> &mut Self
+    {
+        self.fields.push_named(field);
+        self
+    }
+
     /// Add a named field to the struct.
     ///
     /// A struct can either set named fields with this function or tuple fields
