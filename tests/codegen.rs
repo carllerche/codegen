@@ -52,15 +52,15 @@ fn single_struct_documented_field() {
     let mut struct_ = Struct::new("Foo");
 
     let mut field1 = Field::new("one", "usize");
-    field1.with_documentation(doc);
+    field1.doc(doc);
     struct_.push_field(field1);
 
     let mut field2 = Field::new("two", "usize");
-    field2.with_annotation(anot);
+    field2.annotation(anot);
     struct_.push_field(field2);
 
     let mut field3 = Field::new("three", "usize");
-    field3.with_documentation(doc).with_annotation(anot);
+    field3.doc(doc).annotation(anot);
     struct_.push_field(field3);
 
     scope.push_struct(struct_);
