@@ -1130,7 +1130,7 @@ impl Fields {
                 fields.push(field);
             }
             _ => panic!("field list is named"),
-        };
+        }
 
         self
     }
