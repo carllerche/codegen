@@ -1105,7 +1105,7 @@ impl Field {
     }
 
     /// Set field's documentation.
-    pub fn with_documentation(&mut self, documentation: &str) -> &mut Self {
+    pub fn doc(&mut self, documentation: &str) -> &mut Self {
         self.documentation = documentation.into();
         self
     }
