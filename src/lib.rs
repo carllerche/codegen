@@ -1111,7 +1111,7 @@ impl Field {
     }
 
     /// Set field's annotation.
-    pub fn with_annotation(&mut self, annotation: &str) -> &mut Self {
+    pub fn annotation(&mut self, annotation: &str) -> &mut Self {
         self.annotation = annotation.into();
         self
     }
