@@ -230,7 +230,7 @@ pub struct Formatter<'a> {
     /// Write destination
     dst: &'a mut String,
 
-    /// Number of spaces to start a new line with
+    /// Number of spaces to start a new line with.
     spaces: usize,
 
     /// Number of spaces per indentiation
@@ -263,6 +263,17 @@ impl Scope {
     }
 
     /// Push a new module definition, returning a mutable reference to it.
+    ///
+    /// # Panics
+    ///
+    /// Since a module's name must uniquely identify it within the scope in
+    /// which it is defined, pushing a module whose name is already defined
+    /// in this scope will cause this function to panic.
+    ///
+    /// In many cases, the [`get_or_new_module`] function is preferrable, as it
+    /// will return the existing definition instead.
+    ///
+    /// [`get_or_new_module`]: #method.get_or_new_module
     pub fn new_module(&mut self, name: &str) -> &mut Module {
         self.push_module(Module::new(name));
 
@@ -272,8 +283,60 @@ impl Scope {
         }
     }
 
+    /// Returns a mutable reference to a module if it is exists in this scope.
+    pub fn get_module_mut<Q: ?Sized>(&mut self,
+                                     name: &Q)
+                                     -> Option<&mut Module>
+    where
+        String: PartialEq<Q>,
+    {
+        self.items.iter_mut()
+            .filter_map(|item| match item {
+                &mut Item::Module(ref mut module) if module.name == *name =>
+                    Some(module),
+                _ => None,
+            })
+            .next()
+    }
+
+    /// Returns a mutable reference to a module if it is exists in this scope.
+    pub fn get_module<Q: ?Sized>(&self, name: &Q) -> Option<&Module>
+    where
+        String: PartialEq<Q>,
+    {
+        self.items.iter()
+            .filter_map(|item| match item {
+                &Item::Module(ref module) if module.name == *name =>
+                    Some(module),
+                _ => None,
+            })
+            .next()
+    }
+
+    /// Returns a mutable reference to a module, creating it if it does
+    /// not exist.
+    pub fn get_or_new_module(&mut self, name: &str) -> &mut Module {
+        if self.get_module(name).is_some() {
+            self.get_module_mut(name).unwrap()
+        } else {
+            self.new_module(name)
+        }
+    }
+
     /// Push a module definition.
+    ///
+    /// # Panics
+    ///
+    /// Since a module's name must uniquely identify it within the scope in
+    /// which it is defined, pushing a module whose name is already defined
+    /// in this scope will cause this function to panic.
+    ///
+    /// In many cases, the [`get_or_new_module`] function is preferrable, as it will
+    /// return the existing definition instead.
+    ///
+    /// [`get_or_new_module`]: #method.get_or_new_module
     pub fn push_module(&mut self, item: Module) -> &mut Self {
+        assert!(self.get_module(&item.name).is_none());
         self.items.push(Item::Module(item));
         self
     }
@@ -478,11 +541,57 @@ impl Module {
     }
 
     /// Push a new module definition, returning a mutable reference to it.
+    ///
+    /// # Panics
+    ///
+    /// Since a module's name must uniquely identify it within the scope in
+    /// which it is defined, pushing a module whose name is already defined
+    /// in this scope will cause this function to panic.
+    ///
+    /// In many cases, the [`get_or_new_module`] function is preferrable, as it
+    /// will return the existing definition instead.
+    ///
+    /// [`get_or_new_module`]: #method.get_or_new_module
     pub fn new_module(&mut self, name: &str) -> &mut Module {
         self.scope.new_module(name)
     }
 
-    /// Push a module definition
+    /// Returns a reference to a module if it is exists in this scope.
+    pub fn get_module<Q: ?Sized>(&self, name: &Q) -> Option<&Module>
+    where
+        String: PartialEq<Q>,
+    {
+        self.scope.get_module(name)
+    }
+
+    /// Returns a mutable reference to a module if it is exists in this scope.
+    pub fn get_module_mut<Q: ?Sized>(&mut self,
+                                     name: &Q)
+                                     -> Option<&mut Module>
+    where
+        String: PartialEq<Q>,
+    {
+        self.scope.get_module_mut(name)
+    }
+
+    /// Returns a mutable reference to a module, creating it if it does
+    /// not exist.
+    pub fn get_or_new_module(&mut self, name: &str) -> &mut Module {
+        self.scope.get_or_new_module(name)
+    }
+
+    /// Push a module definition.
+    ///
+    /// # Panics
+    ///
+    /// Since a module's name must uniquely identify it within the scope in
+    /// which it is defined, pushing a module whose name is already defined
+    /// in this scope will cause this function to panic.
+    ///
+    /// In many cases, the [`get_or_new_module`] function is preferrable, as it will
+    /// return the existing definition instead.
+    ///
+    /// [`get_or_new_module`]: #method.get_or_new_module
     pub fn push_module(&mut self, item: Module) -> &mut Self {
         self.scope.push_module(item);
         self
