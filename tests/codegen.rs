@@ -253,6 +253,30 @@ mod foo {
 
 
 #[test]
+fn scoped_imports() {
+    let mut scope = Scope::new();
+    scope.new_module("foo")
+        .import("bar", "Bar")
+        .import("bar", "baz::Baz")
+        .new_struct("Foo")
+        .field("bar", "Bar")
+        .field("baz", "baz::Baz")
+        ;
+
+    let expect = r#"
+mod foo {
+    use bar::{Bar, baz};
+
+    struct Foo {
+        bar: Bar,
+        baz: baz::Baz,
+    }
+}"#;
+
+    assert_eq!(scope.to_string(), &expect[1..]);
+}
+
+#[test]
 fn module_mut() {
     let mut scope = Scope::new();
     scope.new_module("foo")
