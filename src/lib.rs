@@ -253,13 +253,34 @@ impl Scope {
 
     /// Import a type into the scope.
     ///
-    /// This results in a new `use` statement bein added to the beginning of the
-    /// scope.
+    /// This results in a new `use` statement being added to the beginning of
+    /// the scope.
     pub fn import(&mut self, path: &str, ty: &str) -> &mut Import {
+        // handle cases where the caller wants to refer to a type namespaced
+        // within the containing namespace, like "a::B".
+        let import_target = match ty.matches("::").count() {
+            0 =>
+                // if there are 0 occurances of "::" in the imported type,
+                // it's a bare name. we're fine.
+                ty,
+            1 =>
+                // if we're referring to the type as namespaced in the
+                // containing module, such as `module::Type`, rather
+                // than with just the bare name, just import the containing
+                // scope -- skip importing the actual type.
+                ty.split("::").next()
+                  .expect("attempted to import a type that was just \"::\""),
+            _ =>
+                // the type contained multiple instances of "::". eventually,
+                // we could possibly handle this by pushing some of them to
+                // the path, but it's unclear how the caller expects to refer
+                // to that type. for now, don't try and figure it out.
+                unimplemented!("type name with multiple \"::\"s.")
+        };
         self.imports.entry(path.to_string())
             .or_insert(OrderMap::new())
-            .entry(ty.to_string())
-            .or_insert_with(|| Import::new(path, ty))
+            .entry(import_target.to_string())
+            .or_insert_with(|| Import::new(path, import_target))
     }
 
     /// Push a new module definition, returning a mutable reference to it.
@@ -1375,18 +1396,8 @@ impl Impl {
 impl Import {
     /// Return a new import.
     pub fn new(path: &str, ty: &str) -> Self {
-        let line =
-            if ty.contains("::") {
-                // if we're referring to the type as namespaced in the
-                // containing module, such as `module::Type`, rather
-                // than with just the bare name, just import the containing
-                // scope -- skip importing the actual type.
-                path
-            } else {
-                format!("{}::{}", path, ty)
-            };
         Import {
-            line,
+            line: format!("{}::{}", path, ty),
             vis: None,
         }
     }
