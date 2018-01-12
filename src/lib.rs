@@ -1375,8 +1375,18 @@ impl Impl {
 impl Import {
     /// Return a new import.
     pub fn new(path: &str, ty: &str) -> Self {
+        let line =
+            if ty.contains("::") {
+                // if we're referring to the type as namespaced in the
+                // containing module, such as `module::Type`, rather
+                // than with just the bare name, just import the containing
+                // scope -- skip importing the actual type.
+                path
+            } else {
+                format!("{}::{}", path, ty)
+            };
         Import {
-            line: format!("{}::{}", path, ty),
+            line,
             vis: None,
         }
     }
