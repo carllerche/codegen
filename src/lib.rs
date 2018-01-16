@@ -258,29 +258,11 @@ impl Scope {
     pub fn import(&mut self, path: &str, ty: &str) -> &mut Import {
         // handle cases where the caller wants to refer to a type namespaced
         // within the containing namespace, like "a::B".
-        let import_target = match ty.matches("::").count() {
-            0 =>
-                // if there are 0 occurances of "::" in the imported type,
-                // it's a bare name. we're fine.
-                ty,
-            1 =>
-                // if we're referring to the type as namespaced in the
-                // containing module, such as `module::Type`, rather
-                // than with just the bare name, just import the containing
-                // scope -- skip importing the actual type.
-                ty.split("::").next()
-                  .expect("attempted to import a type that was just \"::\""),
-            _ =>
-                // the type contained multiple instances of "::". eventually,
-                // we could possibly handle this by pushing some of them to
-                // the path, but it's unclear how the caller expects to refer
-                // to that type. for now, don't try and figure it out.
-                unimplemented!("type name with multiple \"::\"s.")
-        };
+        let ty = ty.split("::").next().unwrap_or(ty);
         self.imports.entry(path.to_string())
             .or_insert(OrderMap::new())
-            .entry(import_target.to_string())
-            .or_insert_with(|| Import::new(path, import_target))
+            .entry(ty.to_string())
+            .or_insert_with(|| Import::new(path, ty))
     }
 
     /// Push a new module definition, returning a mutable reference to it.
