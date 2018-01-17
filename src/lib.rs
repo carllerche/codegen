@@ -253,9 +253,12 @@ impl Scope {
 
     /// Import a type into the scope.
     ///
-    /// This results in a new `use` statement bein added to the beginning of the
-    /// scope.
+    /// This results in a new `use` statement being added to the beginning of
+    /// the scope.
     pub fn import(&mut self, path: &str, ty: &str) -> &mut Import {
+        // handle cases where the caller wants to refer to a type namespaced
+        // within the containing namespace, like "a::B".
+        let ty = ty.split("::").next().unwrap_or(ty);
         self.imports.entry(path.to_string())
             .or_insert(OrderMap::new())
             .entry(ty.to_string())
