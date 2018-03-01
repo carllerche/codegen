@@ -23,9 +23,9 @@
 
 #![deny(warnings, missing_debug_implementations, missing_docs)]
 
-extern crate ordermap;
+extern crate indexmap;
 
-use ordermap::OrderMap;
+use indexmap::IndexMap;
 use std::fmt::{self, Write};
 
 /// Defines a scope.
@@ -37,7 +37,7 @@ pub struct Scope {
     docs: Option<Docs>,
 
     /// Imports
-    imports: OrderMap<String, OrderMap<String, Import>>,
+    imports: IndexMap<String, IndexMap<String, Import>>,
 
     /// Contents of the documentation,
     items: Vec<Item>,
@@ -246,7 +246,7 @@ impl Scope {
     pub fn new() -> Self {
         Scope {
             docs: None,
-            imports: OrderMap::new(),
+            imports: IndexMap::new(),
             items: vec![],
         }
     }
@@ -260,7 +260,7 @@ impl Scope {
         // within the containing namespace, like "a::B".
         let ty = ty.split("::").next().unwrap_or(ty);
         self.imports.entry(path.to_string())
-            .or_insert(OrderMap::new())
+            .or_insert(IndexMap::new())
             .entry(ty.to_string())
             .or_insert_with(|| Import::new(path, ty))
     }
