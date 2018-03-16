@@ -4,4 +4,4 @@ version = "0.1.0"
 authors = ["Carl Lerche <me@carllerche.com>"]
 
 [dependencies]
-indexmap = "0.4.1"
+indexmap = "1"
