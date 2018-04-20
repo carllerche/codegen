@@ -47,7 +47,6 @@ fn single_struct_documented_field() {
     let mut scope = Scope::new();
 
     let doc = "Field's documentation";
-    let anot = r#"#[serde(rename = "bar")]"#;
 
     let mut struct_ = Struct::new("Foo");
 
@@ -56,11 +55,14 @@ fn single_struct_documented_field() {
     struct_.push_field(field1);
 
     let mut field2 = Field::new("two", "usize");
-    field2.annotation(anot);
+    field2.annotation(vec![r#"#[serde(rename = "bar")]"#]);
     struct_.push_field(field2);
 
     let mut field3 = Field::new("three", "usize");
-    field3.doc(doc).annotation(anot);
+    field3.doc(doc).annotation(vec![
+        r#"#[serde(skip_serializing)]"#,
+        r#"#[serde(skip_deserializing)]"#,
+    ]);
     struct_.push_field(field3);
 
     scope.push_struct(struct_);
@@ -72,7 +74,8 @@ struct Foo {
     #[serde(rename = "bar")]
     two: usize,
     /// Field's documentation
-    #[serde(rename = "bar")]
+    #[serde(skip_serializing)]
+    #[serde(skip_deserializing)]
     three: usize,
 }"#;
 

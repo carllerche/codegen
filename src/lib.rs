@@ -139,7 +139,7 @@ pub struct Field {
     documentation: String,
 
     /// Field annotation
-    annotation: String,
+    annotation: Vec<String>,
 }
 
 /// Defines an associated type.
@@ -1100,7 +1100,7 @@ impl Field {
             name: name.into(),
             ty: ty.into(),
             documentation: String::new(),
-            annotation: String::new(),
+            annotation: Vec::new(),
         }
     }
 
@@ -1111,8 +1111,8 @@ impl Field {
     }
 
     /// Set field's annotation.
-    pub fn annotation(&mut self, annotation: &str) -> &mut Self {
-        self.annotation = annotation.into();
+    pub fn annotation(&mut self, annotation: Vec<&str>) -> &mut Self {
+        self.annotation = annotation.iter().map(|ann| ann.to_string()).collect();
         self
     }
 }
@@ -1142,7 +1142,7 @@ impl Fields {
             name: name.to_string(),
             ty: ty.into(),
             documentation: String::new(),
-            annotation: String::new(),
+            annotation: Vec::new(),
         })
     }
 
@@ -1173,7 +1173,9 @@ impl Fields {
                             write!(fmt, "/// {}\n", f.documentation)?;
                         }
                         if !f.annotation.is_empty() {
-                            write!(fmt, "{}\n", f.annotation)?;
+                            for ann in &f.annotation {
+                                write!(fmt, "{}\n", ann)?;
+                            }
                         }
                         write!(fmt, "{}: ", f.name)?;
                         f.ty.fmt(fmt)?;
@@ -1251,7 +1253,7 @@ impl Impl {
             name: name.to_string(),
             ty: ty.into(),
             documentation: String::new(),
-            annotation: String::new(),
+            annotation: Vec::new(),
         });
 
         self
@@ -1400,7 +1402,7 @@ impl Function {
             // and `annotation` does not make sense for function arguments.
             // Simply use empty strings.
             documentation: String::new(),
-            annotation: String::new(),
+            annotation: Vec::new(),
         });
 
         self
