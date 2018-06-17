@@ -136,7 +136,7 @@ pub struct Field {
     ty: Type,
 
     /// Field documentation
-    documentation: String,
+    documentation: Vec<String>,
 
     /// Field annotation
     annotation: Vec<String>,
@@ -1099,14 +1099,14 @@ impl Field {
         Field {
             name: name.into(),
             ty: ty.into(),
-            documentation: String::new(),
+            documentation: Vec::new(),
             annotation: Vec::new(),
         }
     }
 
     /// Set field's documentation.
-    pub fn doc(&mut self, documentation: &str) -> &mut Self {
-        self.documentation = documentation.into();
+    pub fn doc(&mut self, documentation: Vec<&str>) -> &mut Self {
+        self.documentation = documentation.iter().map(|doc| doc.to_string()).collect();
         self
     }
 
@@ -1141,7 +1141,7 @@ impl Fields {
         self.push_named(Field {
             name: name.to_string(),
             ty: ty.into(),
-            documentation: String::new(),
+            documentation: Vec::new(),
             annotation: Vec::new(),
         })
     }
@@ -1170,7 +1170,9 @@ impl Fields {
                 fmt.block(|fmt| {
                     for f in fields {
                         if !f.documentation.is_empty() {
-                            write!(fmt, "/// {}\n", f.documentation)?;
+                            for doc in &f.documentation {
+                                write!(fmt, "/// {}\n", doc)?;
+                            }
                         }
                         if !f.annotation.is_empty() {
                             for ann in &f.annotation {
@@ -1252,7 +1254,7 @@ impl Impl {
         self.assoc_tys.push(Field {
             name: name.to_string(),
             ty: ty.into(),
-            documentation: String::new(),
+            documentation: Vec::new(),
             annotation: Vec::new(),
         });
 
@@ -1401,7 +1403,7 @@ impl Function {
             // While a `Field` is used here, both `documentation`
             // and `annotation` does not make sense for function arguments.
             // Simply use empty strings.
-            documentation: String::new(),
+            documentation: Vec::new(),
             annotation: Vec::new(),
         });
 

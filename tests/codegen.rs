@@ -46,12 +46,12 @@ struct Foo {
 fn single_struct_documented_field() {
     let mut scope = Scope::new();
 
-    let doc = "Field's documentation";
+    let doc = vec!["Field's documentation", "Second line"];
 
     let mut struct_ = Struct::new("Foo");
 
     let mut field1 = Field::new("one", "usize");
-    field1.doc(doc);
+    field1.doc(doc.clone());
     struct_.push_field(field1);
 
     let mut field2 = Field::new("two", "usize");
@@ -70,10 +70,12 @@ fn single_struct_documented_field() {
     let expect = r#"
 struct Foo {
     /// Field's documentation
+    /// Second line
     one: usize,
     #[serde(rename = "bar")]
     two: usize,
     /// Field's documentation
+    /// Second line
     #[serde(skip_serializing)]
     #[serde(skip_deserializing)]
     three: usize,
