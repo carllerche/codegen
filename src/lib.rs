@@ -22,6 +22,7 @@
 //! ```
 
 #![deny(warnings, missing_debug_implementations, missing_docs)]
+#![doc(html_root_url = "https://docs.rs/codegen/0.1.0")]
 
 extern crate indexmap;
 
