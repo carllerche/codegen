@@ -109,6 +109,7 @@ struct TypeDef {
     vis: Option<String>,
     docs: Option<Docs>,
     derive: Vec<String>,
+    allow: Option<String>,
     bounds: Vec<Bound>,
 }
 
@@ -183,6 +184,9 @@ pub struct Function {
 
     /// Function documentation
     docs: Option<Docs>,
+
+    /// A lint attribute used to suppress a warning or error
+    allow: Option<String>,
 
     /// Function visibility
     vis: Option<String>,
@@ -695,6 +699,12 @@ impl Struct {
         self
     }
 
+    /// Specify lint attribute to supress a warning or error.
+    pub fn allow(&mut self, allow: &str) -> &mut Self {
+        self.type_def.allow(allow);
+        self
+    }
+
     /// Add a named field to the struct.
     ///
     /// A struct can either set named fields with this function or tuple fields
@@ -896,6 +906,12 @@ impl Enum {
         self
     }
 
+    /// Specify lint attribute to supress a warning or error.
+    pub fn allow(&mut self, allow: &str) -> &mut Self {
+        self.type_def.allow(allow);
+        self
+    }
+
     /// Push a variant to the enum, returning a mutable reference to it.
     pub fn new_variant(&mut self, name: &str) -> &mut Variant {
         self.push_variant(Variant::new(name));
@@ -1055,6 +1071,7 @@ impl TypeDef {
             vis: None,
             docs: None,
             derive: vec![],
+            allow: None,
             bounds: vec![],
         }
     }
@@ -1080,6 +1097,10 @@ impl TypeDef {
         self.derive.push(name.to_string());
     }
 
+    fn allow(&mut self, allow: &str) {
+        self.allow = Some(allow.to_string());
+    }
+
     fn fmt_head(&self,
                 keyword: &str,
                 parents: &[Type],
@@ -1089,6 +1110,7 @@ impl TypeDef {
             docs.fmt(fmt)?;
         }
 
+        self.fmt_allow(fmt)?;
         self.fmt_derive(fmt)?;
 
         if let Some(ref vis) = self.vis {
@@ -1111,6 +1133,14 @@ impl TypeDef {
         }
 
         fmt_bounds(&self.bounds, fmt)?;
+
+        Ok(())
+    }
+
+    fn fmt_allow(&self, fmt: &mut Formatter) -> fmt::Result {
+        if let Some(ref allow) = self.allow {
+            write!(fmt, "#[allow({})]\n", allow)?;
+        }
 
         Ok(())
     }
@@ -1400,6 +1430,7 @@ impl Function {
         Function {
             name: name.to_string(),
             docs: None,
+            allow: None,
             vis: None,
             generics: vec![],
             arg_self: None,
@@ -1413,6 +1444,12 @@ impl Function {
     /// Set the function documentation.
     pub fn doc(&mut self, docs: &str) -> &mut Self {
         self.docs = Some(Docs::new(docs));
+        self
+    }
+
+    /// Specify lint attribute to supress a warning or error.
+    pub fn allow(&mut self, allow: &str) -> &mut Self {
+        self.allow = Some(allow.to_string());
         self
     }
 
@@ -1499,6 +1536,10 @@ impl Function {
     pub fn fmt(&self, is_trait: bool, fmt: &mut Formatter) -> fmt::Result {
         if let Some(ref docs) = self.docs {
             docs.fmt(fmt)?;
+        }
+
+        if let Some(ref allow) = self.allow {
+            write!(fmt, "#[allow({})]\n", allow)?;
         }
 
         if is_trait {
