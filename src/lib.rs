@@ -1,3 +1,6 @@
+#![deny(warnings, missing_debug_implementations, missing_docs)]
+#![doc(html_root_url = "https://docs.rs/codegen/0.1.1")]
+
 //! Provides a builder API for generating Rust code.
 //!
 //! The general strategy for using the crate is as follows:
@@ -20,9 +23,6 @@
 //!
 //! println!("{}", scope.to_string());
 //! ```
-
-#![deny(warnings, missing_debug_implementations, missing_docs)]
-#![doc(html_root_url = "https://docs.rs/codegen/0.1.0")]
 
 extern crate indexmap;
 

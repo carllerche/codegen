@@ -6,7 +6,7 @@ Provides an builder API to assist in generating Rust code.
 
 More information about this crate can be found in the [crate documentation][dox]
 
-[dox]: https://carllerche.github.io/codegen/codegen
+[dox]: https://docs.rs/codegen/0.1.1/codegen/
 
 ## Installation
 
@@ -14,7 +14,7 @@ To use `codegen`, first add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-codegen = { git = "https://github.com/carllerche/codegen" } # Soon on crates.io
+codegen = "0.1.1"
 ```
 
 Next, add this to your crate:
@@ -48,3 +48,13 @@ println!("{}", scope.to_string());
 
 `codegen` will not attempt to perform anything beyond basic formatting. For
 improved formatting, the generated code can be passed to `rustfmt`.
+
+## License
+
+This project is licensed under the [MIT license](LICENSE).
+
+### Contribution
+
+Unless you explicitly state otherwise, any contribution intentionally submitted
+for inclusion in `codegen` by you, shall be licensed as MIT, without any
+additional terms or conditions.
