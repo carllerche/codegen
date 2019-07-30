@@ -460,7 +460,7 @@ fn impl_with_macros() {
 
     let f = imp.new_fn("pet_toby");
     f.set_async(true);
-    f.line("println!(\"petting toby because he is a good boi\");");
+    f.line("println!(\"petting Toby many times because he is such a good boi\");");
 
     let expect = r#"
 struct Bar;
