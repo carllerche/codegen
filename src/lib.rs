@@ -48,6 +48,7 @@ pub struct Scope {
 enum Item {
     Module(Module),
     Struct(Struct),
+    Function(Function),
     Trait(Trait),
     Enum(Enum),
     Impl(Impl),
@@ -366,6 +367,22 @@ impl Scope {
         self
     }
 
+    /// Push a new function definition, returning a mutable reference to it.
+    pub fn new_fn(&mut self, name: &str) -> &mut Function {
+        self.push_fn(Function::new(name));
+
+        match *self.items.last_mut().unwrap() {
+            Item::Function(ref mut v) => v,
+            _ => unreachable!(),
+        }
+    }
+
+    /// Push a function definition
+    pub fn push_fn(&mut self, item: Function) -> &mut Self {
+        self.items.push(Item::Function(item));
+        self
+    }
+
     /// Push a new trait definition, returning a mutable reference to it.
     pub fn new_trait(&mut self, name: &str) -> &mut Trait {
         self.push_trait(Trait::new(name));
@@ -452,6 +469,7 @@ impl Scope {
             match *item {
                 Item::Module(ref v) => v.fmt(fmt)?,
                 Item::Struct(ref v) => v.fmt(fmt)?,
+                Item::Function(ref v) => v.fmt(false, fmt)?,
                 Item::Trait(ref v) => v.fmt(fmt)?,
                 Item::Enum(ref v) => v.fmt(fmt)?,
                 Item::Impl(ref v) => v.fmt(fmt)?,
@@ -614,6 +632,17 @@ impl Module {
     /// Push a structure definition
     pub fn push_struct(&mut self, item: Struct) -> &mut Self {
         self.scope.push_struct(item);
+        self
+    }
+
+    /// Push a new function definition, returning a mutable reference to it.
+    pub fn new_fn(&mut self, name: &str) -> &mut Function {
+        self.scope.new_fn(name)
+    }
+
+    /// Push a function definition
+    pub fn push_fn(&mut self, item: Function) -> &mut Self {
+        self.scope.push_fn(item);
         self
     }
 
@@ -1449,7 +1478,7 @@ impl Import {
     }
 }
 
-// ===== impl Func =====
+// ===== impl Function =====
 
 impl Function {
     /// Return a new function definition.

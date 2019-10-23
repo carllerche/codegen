@@ -1,6 +1,6 @@
 extern crate codegen;
 
-use codegen::{Scope, Variant};
+use codegen::{Scope, Variant, Type};
 
 #[test]
 fn empty_scope() {
@@ -21,6 +21,25 @@ fn single_struct() {
 struct Foo {
     one: usize,
     two: String,
+}"#;
+
+    assert_eq!(scope.to_string(), &expect[1..]);
+}
+
+#[test]
+fn single_fn() {
+    let mut scope = Scope::new();
+    scope.new_fn("my_fn")
+        .vis("pub")
+        .arg("foo", Type::new("uint"))
+        .ret(Type::new("uint"))
+        .line("let res = foo + 1;")
+        .line("res");
+
+    let expect = r#"
+pub fn my_fn(foo: uint) -> uint {
+    let res = foo + 1;
+    res
 }"#;
 
     assert_eq!(scope.to_string(), &expect[1..]);
