@@ -1619,7 +1619,7 @@ impl Function {
         }
 
         if let Some(ref extern_abi) = self.extern_abi {
-            write!(fmt, "extern \"{extern_abi}\"", extern_abi = extern_abi)?;
+            write!(fmt, "extern \"{extern_abi}\" ", extern_abi = extern_abi)?;
         }
 
         write!(fmt, "fn {}", self.name)?;
