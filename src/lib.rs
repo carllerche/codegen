@@ -209,6 +209,12 @@ pub struct Function {
 
     /// Body contents
     body: Option<Vec<Body>>,
+
+    /// Function attributes, e.g., `#[no_mangle]`.
+    attributes: Vec<String>,
+
+    /// Function `extern` ABI
+    extern_abi: Option<String>,
 }
 
 /// Defines a code block. This is used to define a function body.
@@ -1465,6 +1471,8 @@ impl Function {
             ret: None,
             bounds: vec![],
             body: Some(vec![]),
+            attributes: vec![],
+            extern_abi: None,
         }
     }
 
@@ -1551,6 +1559,35 @@ impl Function {
         self
     }
 
+    /// Add an attribute to the function.
+    ///
+    /// ```
+    /// use codegen::Function;
+    ///
+    /// let mut func = Function::new("test");
+    ///
+    /// // add a `#[test]` attribute
+    /// func.attr("test");
+    /// ```
+    pub fn attr(&mut self, attribute: &str) -> &mut Self {
+        self.attributes.push(attribute.to_string());
+        self
+    }
+
+    /// Specify an `extern` ABI for the function.
+    /// ```
+    /// use codegen::Function;
+    ///
+    /// let mut extern_func = Function::new("extern_func");
+    ///
+    /// // use the "C" calling convention
+    /// extern_func.extern_abi("C");
+    /// ```
+    pub fn extern_abi(&mut self, abi: &str) -> &mut Self {
+        self.extern_abi.replace(abi.to_string());
+        self
+    }
+
     /// Push a block to the function implementation
     pub fn push_block(&mut self, block: Block) -> &mut Self {
         self.body.get_or_insert(vec![])
@@ -1569,12 +1606,20 @@ impl Function {
             write!(fmt, "#[allow({})]\n", allow)?;
         }
 
+        for attr in self.attributes.iter() {
+           write!(fmt, "#[{}]\n", attr)?;
+        }
+
         if is_trait {
             assert!(self.vis.is_none(), "trait fns do not have visibility modifiers");
         }
 
         if let Some(ref vis) = self.vis {
             write!(fmt, "{} ", vis)?;
+        }
+
+        if let Some(ref extern_abi) = self.extern_abi {
+            write!(fmt, "extern \"{extern_abi}\"", extern_abi = extern_abi)?;
         }
 
         write!(fmt, "fn {}", self.name)?;
