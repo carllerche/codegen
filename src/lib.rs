@@ -271,7 +271,8 @@ impl Scope {
         // handle cases where the caller wants to refer to a type namespaced
         // within the containing namespace, like "a::B".
         let ty = ty.split("::").next().unwrap_or(ty);
-        self.imports.entry(path.to_string())
+        self.imports
+            .entry(path.to_string())
             .or_insert(IndexMap::new())
             .entry(ty.to_string())
             .or_insert_with(|| Import::new(path, ty))
@@ -299,16 +300,14 @@ impl Scope {
     }
 
     /// Returns a mutable reference to a module if it is exists in this scope.
-    pub fn get_module_mut<Q: ?Sized>(&mut self,
-                                     name: &Q)
-                                     -> Option<&mut Module>
+    pub fn get_module_mut<Q: ?Sized>(&mut self, name: &Q) -> Option<&mut Module>
     where
         String: PartialEq<Q>,
     {
-        self.items.iter_mut()
+        self.items
+            .iter_mut()
             .filter_map(|item| match item {
-                &mut Item::Module(ref mut module) if module.name == *name =>
-                    Some(module),
+                &mut Item::Module(ref mut module) if module.name == *name => Some(module),
                 _ => None,
             })
             .next()
@@ -319,10 +318,10 @@ impl Scope {
     where
         String: PartialEq<Q>,
     {
-        self.items.iter()
+        self.items
+            .iter()
             .filter_map(|item| match item {
-                &Item::Module(ref module) if module.name == *name =>
-                    Some(module),
+                &Item::Module(ref module) if module.name == *name => Some(module),
                 _ => None,
             })
             .next()
@@ -506,7 +505,9 @@ impl Scope {
                         write!(fmt, "{{")?;
 
                         for (i, ty) in tys.iter().enumerate() {
-                            if i != 0 { write!(fmt, ", ")?; }
+                            if i != 0 {
+                                write!(fmt, ", ")?;
+                            }
                             write!(fmt, "{}", ty)?;
                         }
 
@@ -580,9 +581,7 @@ impl Module {
     }
 
     /// Returns a mutable reference to a module if it is exists in this scope.
-    pub fn get_module_mut<Q: ?Sized>(&mut self,
-                                     name: &Q)
-                                     -> Option<&mut Module>
+    pub fn get_module_mut<Q: ?Sized>(&mut self, name: &Q) -> Option<&mut Module>
     where
         String: PartialEq<Q>,
     {
@@ -645,6 +644,12 @@ impl Module {
         self
     }
 
+    /// Push a trait definition
+    pub fn push_trait(&mut self, item: Trait) -> &mut Self {
+        self.scope.push_trait(item);
+        self
+    }
+
     /// Formats the module using the given formatter.
     pub fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
         if let Some(ref vis) = self.vis {
@@ -652,9 +657,7 @@ impl Module {
         }
 
         write!(fmt, "mod {}", self.name)?;
-        fmt.block(|fmt| {
-            self.scope.fmt(fmt)
-        })
+        fmt.block(|fmt| self.scope.fmt(fmt))
     }
 }
 
@@ -688,7 +691,8 @@ impl Struct {
 
     /// Add a `where` bound to the struct.
     pub fn bound<T>(&mut self, name: &str, ty: T) -> &mut Self
-    where T: Into<Type>,
+    where
+        T: Into<Type>,
     {
         self.type_def.bound(name, ty);
         self
@@ -723,7 +727,8 @@ impl Struct {
     /// A struct can either set named fields with this function or tuple fields
     /// with `tuple_field`, but not both.
     pub fn field<T>(&mut self, name: &str, ty: T) -> &mut Self
-    where T: Into<Type>,
+    where
+        T: Into<Type>,
     {
         self.fields.named(name, ty);
         self
@@ -734,7 +739,8 @@ impl Struct {
     /// A struct can either set tuple fields with this function or named fields
     /// with `field`, but not both.
     pub fn tuple_field<T>(&mut self, ty: T) -> &mut Self
-    where T: Into<Type>,
+    where
+        T: Into<Type>,
     {
         self.fields.tuple(ty);
         self
@@ -791,7 +797,8 @@ impl Trait {
 
     /// Add a `where` bound to the trait.
     pub fn bound<T>(&mut self, name: &str, ty: T) -> &mut Self
-    where T: Into<Type>,
+    where
+        T: Into<Type>,
     {
         self.type_def.bound(name, ty);
         self
@@ -799,7 +806,8 @@ impl Trait {
 
     /// Add a parent trait.
     pub fn parent<T>(&mut self, ty: T) -> &mut Self
-    where T: Into<Type>,
+    where
+        T: Into<Type>,
     {
         self.parents.push(ty.into());
         self
@@ -861,7 +869,9 @@ impl Trait {
             }
 
             for (i, func) in self.fns.iter().enumerate() {
-                if i != 0 || !assoc.is_empty() { write!(fmt, "\n")?; }
+                if i != 0 || !assoc.is_empty() {
+                    write!(fmt, "\n")?;
+                }
 
                 func.fmt(true, fmt)?;
             }
@@ -901,7 +911,8 @@ impl Enum {
 
     /// Add a `where` bound to the enum.
     pub fn bound<T>(&mut self, name: &str, ty: T) -> &mut Self
-    where T: Into<Type>,
+    where
+        T: Into<Type>,
     {
         self.type_def.bound(name, ty);
         self
@@ -970,7 +981,8 @@ impl Variant {
 
     /// Add a named field to the variant.
     pub fn named<T>(&mut self, name: &str, ty: T) -> &mut Self
-    where T: Into<Type>,
+    where
+        T: Into<Type>,
     {
         self.fields.named(name, ty);
         self
@@ -1005,10 +1017,14 @@ impl Type {
 
     /// Add a generic to the type.
     pub fn generic<T>(&mut self, ty: T) -> &mut Self
-    where T: Into<Type>,
+    where
+        T: Into<Type>,
     {
         // Make sure that the name doesn't already include generics
-        assert!(!self.name.contains("<"), "type name already includes generics");
+        assert!(
+            !self.name.contains("<"),
+            "type name already includes generics"
+        );
 
         self.generics.push(ty.into());
         self
@@ -1042,7 +1058,9 @@ impl Type {
             write!(fmt, "<")?;
 
             for (i, ty) in generics.iter().enumerate() {
-                if i != 0 { write!(fmt, ", ")? }
+                if i != 0 {
+                    write!(fmt, ", ")?
+                }
                 ty.fmt(fmt)?;
             }
 
@@ -1101,7 +1119,8 @@ impl TypeDef {
     }
 
     fn bound<T>(&mut self, name: &str, ty: T)
-    where T: Into<Type>,
+    where
+        T: Into<Type>,
     {
         self.bounds.push(Bound {
             name: name.to_string(),
@@ -1125,11 +1144,7 @@ impl TypeDef {
         self.repr = Some(repr.to_string());
     }
 
-    fn fmt_head(&self,
-                keyword: &str,
-                parents: &[Type],
-                fmt: &mut Formatter) -> fmt::Result
-    {
+    fn fmt_head(&self, keyword: &str, parents: &[Type], fmt: &mut Formatter) -> fmt::Result {
         if let Some(ref docs) = self.docs {
             docs.fmt(fmt)?;
         }
@@ -1183,7 +1198,9 @@ impl TypeDef {
             write!(fmt, "#[derive(")?;
 
             for (i, name) in self.derive.iter().enumerate() {
-                if i != 0 { write!(fmt, ", ")? }
+                if i != 0 {
+                    write!(fmt, ", ")?
+                }
                 write!(fmt, "{}", name)?;
             }
 
@@ -1199,7 +1216,9 @@ fn fmt_generics(generics: &[String], fmt: &mut Formatter) -> fmt::Result {
         write!(fmt, "<")?;
 
         for (i, ty) in generics.iter().enumerate() {
-            if i != 0 { write!(fmt, ", ")? }
+            if i != 0 {
+                write!(fmt, ", ")?
+            }
             write!(fmt, "{}", ty)?;
         }
 
@@ -1230,7 +1249,9 @@ fn fmt_bounds(bounds: &[Bound], fmt: &mut Formatter) -> fmt::Result {
 
 fn fmt_bound_rhs(tys: &[Type], fmt: &mut Formatter) -> fmt::Result {
     for (i, ty) in tys.iter().enumerate() {
-        if i != 0 { write!(fmt, " + ")? }
+        if i != 0 {
+            write!(fmt, " + ")?
+        }
         ty.fmt(fmt)?;
     }
 
@@ -1242,7 +1263,8 @@ fn fmt_bound_rhs(tys: &[Type], fmt: &mut Formatter) -> fmt::Result {
 impl AssociatedType {
     /// Add a bound to the associated type.
     pub fn bound<T>(&mut self, ty: T) -> &mut Self
-    where T: Into<Type>,
+    where
+        T: Into<Type>,
     {
         self.0.bound.push(ty.into());
         self
@@ -1253,7 +1275,8 @@ impl AssociatedType {
 
 impl Fields {
     fn named<T>(&mut self, name: &str, ty: T) -> &mut Self
-    where T: Into<Type>,
+    where
+        T: Into<Type>,
     {
         match *self {
             Fields::Empty => {
@@ -1275,7 +1298,8 @@ impl Fields {
     }
 
     fn tuple<T>(&mut self, ty: T) -> &mut Self
-    where T: Into<Type>,
+    where
+        T: Into<Type>,
     {
         match *self {
             Fields::Empty => {
@@ -1311,7 +1335,9 @@ impl Fields {
                 write!(fmt, "(")?;
 
                 for (i, ty) in tys.iter().enumerate() {
-                    if i != 0 { write!(fmt, ", ")?; }
+                    if i != 0 {
+                        write!(fmt, ", ")?;
+                    }
                     ty.fmt(fmt)?;
                 }
 
@@ -1329,7 +1355,8 @@ impl Fields {
 impl Impl {
     /// Return a new impl definition
     pub fn new<T>(target: T) -> Self
-    where T: Into<Type>,
+    where
+        T: Into<Type>,
     {
         Impl {
             target: target.into(),
@@ -1351,7 +1378,8 @@ impl Impl {
 
     /// Add a generic to the target type.
     pub fn target_generic<T>(&mut self, ty: T) -> &mut Self
-    where T: Into<Type>,
+    where
+        T: Into<Type>,
     {
         self.target.generic(ty);
         self
@@ -1359,7 +1387,8 @@ impl Impl {
 
     /// Set the trait that the impl block is implementing.
     pub fn impl_trait<T>(&mut self, ty: T) -> &mut Self
-    where T: Into<Type>,
+    where
+        T: Into<Type>,
     {
         self.impl_trait = Some(ty.into());
         self
@@ -1367,7 +1396,8 @@ impl Impl {
 
     /// Set an associated type.
     pub fn associate_type<T>(&mut self, name: &str, ty: T) -> &mut Self
-    where T: Into<Type>,
+    where
+        T: Into<Type>,
     {
         self.assoc_tys.push(Field {
             name: name.to_string(),
@@ -1379,7 +1409,8 @@ impl Impl {
 
     /// Add a `where` bound to the impl block.
     pub fn bound<T>(&mut self, name: &str, ty: T) -> &mut Self
-    where T: Into<Type>,
+    where
+        T: Into<Type>,
     {
         self.bounds.push(Bound {
             name: name.to_string(),
@@ -1427,7 +1458,9 @@ impl Impl {
             }
 
             for (i, func) in self.fns.iter().enumerate() {
-                if i != 0 || !self.assoc_tys.is_empty() { write!(fmt, "\n")?; }
+                if i != 0 || !self.assoc_tys.is_empty() {
+                    write!(fmt, "\n")?;
+                }
 
                 func.fmt(false, fmt)?;
             }
@@ -1520,7 +1553,8 @@ impl Function {
 
     /// Add a function argument.
     pub fn arg<T>(&mut self, name: &str, ty: T) -> &mut Self
-    where T: Into<Type>,
+    where
+        T: Into<Type>,
     {
         self.args.push(Field {
             name: name.to_string(),
@@ -1532,7 +1566,8 @@ impl Function {
 
     /// Set the function return type.
     pub fn ret<T>(&mut self, ty: T) -> &mut Self
-    where T: Into<Type>,
+    where
+        T: Into<Type>,
     {
         self.ret = Some(ty.into());
         self
@@ -1540,7 +1575,8 @@ impl Function {
 
     /// Add a `where` bound to the function.
     pub fn bound<T>(&mut self, name: &str, ty: T) -> &mut Self
-    where T: Into<Type>,
+    where
+        T: Into<Type>,
     {
         self.bounds.push(Bound {
             name: name.to_string(),
@@ -1551,9 +1587,11 @@ impl Function {
 
     /// Push a line to the function implementation.
     pub fn line<T>(&mut self, line: T) -> &mut Self
-    where T: ToString,
+    where
+        T: ToString,
     {
-        self.body.get_or_insert(vec![])
+        self.body
+            .get_or_insert(vec![])
             .push(Body::String(line.to_string()));
 
         self
@@ -1590,8 +1628,7 @@ impl Function {
 
     /// Push a block to the function implementation
     pub fn push_block(&mut self, block: Block) -> &mut Self {
-        self.body.get_or_insert(vec![])
-            .push(Body::Block(block));
+        self.body.get_or_insert(vec![]).push(Body::Block(block));
 
         self
     }
@@ -1607,11 +1644,14 @@ impl Function {
         }
 
         for attr in self.attributes.iter() {
-           write!(fmt, "#[{}]\n", attr)?;
+            write!(fmt, "#[{}]\n", attr)?;
         }
 
         if is_trait {
-            assert!(self.vis.is_none(), "trait fns do not have visibility modifiers");
+            assert!(
+                self.vis.is_none(),
+                "trait fns do not have visibility modifiers"
+            );
         }
 
         if let Some(ref vis) = self.vis {
@@ -1650,15 +1690,13 @@ impl Function {
         fmt_bounds(&self.bounds, fmt)?;
 
         match self.body {
-            Some(ref body) => {
-                fmt.block(|fmt| {
-                    for b in body {
-                        b.fmt(fmt)?;
-                    }
+            Some(ref body) => fmt.block(|fmt| {
+                for b in body {
+                    b.fmt(fmt)?;
+                }
 
-                    Ok(())
-                })
-            }
+                Ok(())
+            }),
             None => {
                 if !is_trait {
                     panic!("impl blocks must define fn bodies");
@@ -1684,7 +1722,8 @@ impl Block {
 
     /// Push a line to the code block.
     pub fn line<T>(&mut self, line: T) -> &mut Self
-    where T: ToString,
+    where
+        T: ToString,
     {
         self.body.push(Body::String(line.to_string()));
         self
@@ -1740,12 +1779,8 @@ impl Block {
 impl Body {
     fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
         match *self {
-            Body::String(ref s) => {
-                write!(fmt, "{}\n", s)
-            }
-            Body::Block(ref b) => {
-                b.fmt(fmt)
-            }
+            Body::String(ref s) => write!(fmt, "{}\n", s),
+            Body::Block(ref b) => b.fmt(fmt),
         }
     }
 }
@@ -1754,7 +1789,9 @@ impl Body {
 
 impl Docs {
     fn new(docs: &str) -> Self {
-        Docs { docs: docs.to_string() }
+        Docs {
+            docs: docs.to_string(),
+        }
     }
 
     fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
@@ -1779,7 +1816,8 @@ impl<'a> Formatter<'a> {
     }
 
     fn block<F>(&mut self, f: F) -> fmt::Result
-    where F: FnOnce(&mut Self) -> fmt::Result
+    where
+        F: FnOnce(&mut Self) -> fmt::Result,
     {
         if !self.is_start_of_line() {
             write!(self, " ")?;
@@ -1793,7 +1831,8 @@ impl<'a> Formatter<'a> {
 
     /// Call the given function with the indentation level incremented by one.
     fn indent<F, R>(&mut self, f: F) -> R
-    where F: FnOnce(&mut Self) -> R
+    where
+        F: FnOnce(&mut Self) -> R,
     {
         self.spaces += self.indent;
         let ret = f(self);
@@ -1802,8 +1841,7 @@ impl<'a> Formatter<'a> {
     }
 
     fn is_start_of_line(&self) -> bool {
-        self.dst.is_empty() ||
-            self.dst.as_bytes().last() == Some(&b'\n')
+        self.dst.is_empty() || self.dst.as_bytes().last() == Some(&b'\n')
     }
 
     fn push_spaces(&mut self) {
@@ -1825,9 +1863,7 @@ impl<'a> fmt::Write for Formatter<'a> {
 
             first = false;
 
-            let do_indent = should_indent &&
-                !line.is_empty() &&
-                line.as_bytes()[0] != b'\n';
+            let do_indent = should_indent && !line.is_empty() && line.as_bytes()[0] != b'\n';
 
             if do_indent {
                 self.push_spaces();
