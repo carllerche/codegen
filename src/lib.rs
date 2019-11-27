@@ -51,6 +51,7 @@ enum Item {
     Trait(Trait),
     Enum(Enum),
     Impl(Impl),
+    Function(Function),
     Raw(String),
 }
 
@@ -371,6 +372,12 @@ impl Scope {
         self
     }
 
+    /// Push a function
+    pub fn push_fn(&mut self, item: Function) -> &mut Self {
+        self.items.push(Item::Function(item));
+        self
+    }
+
     /// Push a new trait definition, returning a mutable reference to it.
     pub fn new_trait(&mut self, name: &str) -> &mut Trait {
         self.push_trait(Trait::new(name));
@@ -460,6 +467,7 @@ impl Scope {
                 Item::Trait(ref v) => v.fmt(fmt)?,
                 Item::Enum(ref v) => v.fmt(fmt)?,
                 Item::Impl(ref v) => v.fmt(fmt)?,
+                Item::Function(ref v) => v.fmt(false, fmt)?,
                 Item::Raw(ref v) => {
                     write!(fmt, "{}\n", v)?;
                 }
@@ -619,6 +627,12 @@ impl Module {
     /// Push a structure definition
     pub fn push_struct(&mut self, item: Struct) -> &mut Self {
         self.scope.push_struct(item);
+        self
+    }
+
+    /// Push a function
+    pub fn push_fn(&mut self, item: Function) -> &mut Self {
+        self.scope.push_fn(item);
         self
     }
 
