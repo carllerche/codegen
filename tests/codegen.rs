@@ -29,7 +29,7 @@ struct Foo {
 fn struct_with_pushed_field() {
     let mut scope = Scope::new();
     let mut struct_ = Struct::new("Foo");
-    let mut field = Field::new("one", "usize");
+    let field = Field::new("one", "usize");
     struct_.push_field(field);
     scope.push_struct(struct_);
 
