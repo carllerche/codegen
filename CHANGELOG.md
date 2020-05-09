@@ -1,3 +1,10 @@
+# 0.1.3 (May 9, 2020)
+
+### Added
+- Add support to define function attributes and extern functions
+- Add support to define async functions
+- Add support to add macros to traits and impls
+
 # 0.1.2 (May 9, 2020)
 
 ### Added

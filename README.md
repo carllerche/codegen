@@ -6,7 +6,7 @@ Provides an builder API to assist in generating Rust code.
 
 More information about this crate can be found in the [crate documentation][dox]
 
-[dox]: https://docs.rs/codegen/0.1.1/codegen/
+[dox]: https://docs.rs/codegen/0.1.3/codegen/
 
 ## Installation
 
