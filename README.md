@@ -14,7 +14,7 @@ To use `codegen`, first add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-codegen = "0.1.1"
+codegen = "0.1.2"
 ```
 
 Next, add this to your crate:
