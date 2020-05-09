@@ -131,12 +131,18 @@ enum Fields {
 
 /// Defines a struct field.
 #[derive(Debug, Clone)]
-struct Field {
+pub struct Field {
     /// Field name
     name: String,
 
     /// Field type
     ty: Type,
+
+    /// Field documentation
+    documentation: Vec<String>,
+
+    /// Field annotation
+    annotation: Vec<String>,
 }
 
 /// Defines an associated type.
@@ -712,6 +718,16 @@ impl Struct {
         self
     }
 
+    /// Push a named field to the struct.
+    ///
+    /// A struct can either set named fields with this function or tuple fields
+    /// with `push_tuple_field`, but not both.
+    pub fn push_field(&mut self, field: Field) -> &mut Self
+    {
+        self.fields.push_named(field);
+        self
+    }
+
     /// Add a named field to the struct.
     ///
     /// A struct can either set named fields with this function or tuple fields
@@ -1243,29 +1259,61 @@ impl AssociatedType {
     }
 }
 
+// ===== impl Field =====
+
+impl Field {
+    /// Return a field definition with the provided name and type
+    pub fn new<T>(name: &str, ty: T) -> Self
+    where T: Into<Type>,
+    {
+        Field {
+            name: name.into(),
+            ty: ty.into(),
+            documentation: Vec::new(),
+            annotation: Vec::new(),
+        }
+    }
+
+    /// Set field's documentation.
+    pub fn doc(&mut self, documentation: Vec<&str>) -> &mut Self {
+        self.documentation = documentation.iter().map(|doc| doc.to_string()).collect();
+        self
+    }
+
+    /// Set field's annotation.
+    pub fn annotation(&mut self, annotation: Vec<&str>) -> &mut Self {
+        self.annotation = annotation.iter().map(|ann| ann.to_string()).collect();
+        self
+    }
+}
+
 // ===== impl Fields =====
 
 impl Fields {
-    fn named<T>(&mut self, name: &str, ty: T) -> &mut Self
-    where T: Into<Type>,
+    fn push_named(&mut self, field: Field) -> &mut Self
     {
         match *self {
             Fields::Empty => {
-                *self = Fields::Named(vec![Field {
-                    name: name.to_string(),
-                    ty: ty.into(),
-                }]);
+                *self = Fields::Named(vec![field]);
             }
             Fields::Named(ref mut fields) => {
-                fields.push(Field {
-                    name: name.to_string(),
-                    ty: ty.into(),
-                });
+                fields.push(field);
             }
             _ => panic!("field list is named"),
         }
 
         self
+    }
+
+    fn named<T>(&mut self, name: &str, ty: T) -> &mut Self
+    where T: Into<Type>,
+    {
+        self.push_named(Field {
+            name: name.to_string(),
+            ty: ty.into(),
+            documentation: Vec::new(),
+            annotation: Vec::new(),
+        })
     }
 
     fn tuple<T>(&mut self, ty: T) -> &mut Self
@@ -1291,6 +1339,16 @@ impl Fields {
 
                 fmt.block(|fmt| {
                     for f in fields {
+                        if !f.documentation.is_empty() {
+                            for doc in &f.documentation {
+                                write!(fmt, "/// {}\n", doc)?;
+                            }
+                        }
+                        if !f.annotation.is_empty() {
+                            for ann in &f.annotation {
+                                write!(fmt, "{}\n", ann)?;
+                            }
+                        }
                         write!(fmt, "{}: ", f.name)?;
                         f.ty.fmt(fmt)?;
                         write!(fmt, ",\n")?;
@@ -1366,6 +1424,8 @@ impl Impl {
         self.assoc_tys.push(Field {
             name: name.to_string(),
             ty: ty.into(),
+            documentation: Vec::new(),
+            annotation: Vec::new(),
         });
 
         self
@@ -1517,6 +1577,11 @@ impl Function {
         self.args.push(Field {
             name: name.to_string(),
             ty: ty.into(),
+            // While a `Field` is used here, both `documentation`
+            // and `annotation` does not make sense for function arguments.
+            // Simply use empty strings.
+            documentation: Vec::new(),
+            annotation: Vec::new(),
         });
 
         self
