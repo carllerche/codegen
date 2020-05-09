@@ -5,11 +5,11 @@ name = "codegen"
 # - Update CHANGELOG.md.
 # - Update doc URL.
 # - Create "v0.1.x" git tag.
-version = "0.1.2"
+version = "0.1.3"
 license = "MIT"
 authors = ["Carl Lerche <me@carllerche.com>"]
 description = "Library for generating Rust code"
-documentation = "https://docs.rs/codegen/0.1.2/codegen"
+documentation = "https://docs.rs/codegen/0.1.3/codegen"
 homepage = "https://github.com/carllerche/codegen"
 repository = "https://github.com/carllerche/codegen"
 readme = "README.md"
