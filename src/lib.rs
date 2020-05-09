@@ -94,6 +94,7 @@ pub struct Trait {
     parents: Vec<Type>,
     associated_tys: Vec<AssociatedType>,
     fns: Vec<Function>,
+    macros: Vec<String>,
 }
 
 /// Defines a type.
@@ -113,6 +114,7 @@ struct TypeDef {
     allow: Option<String>,
     repr: Option<String>,
     bounds: Vec<Bound>,
+    macros: Vec<String>,
 }
 
 /// Defines an enum variant.
@@ -175,6 +177,8 @@ pub struct Impl {
     bounds: Vec<Bound>,
 
     fns: Vec<Function>,
+
+    macros: Vec<String>,
 }
 
 /// Defines an import (`use` statement).
@@ -222,6 +226,9 @@ pub struct Function {
 
     /// Function `extern` ABI
     extern_abi: Option<String>,
+
+    /// Whether or not this function is `async` or not
+    r#async: bool,
 }
 
 /// Defines a code block. This is used to define a function body.
@@ -820,6 +827,7 @@ impl Trait {
             parents: vec![],
             associated_tys: vec![],
             fns: vec![],
+            macros: vec![],
         }
     }
 
@@ -846,6 +854,12 @@ impl Trait {
         T: Into<Type>,
     {
         self.type_def.bound(name, ty);
+        self
+    }
+
+    /// Add a macro to the trait def (e.g. `"#[async_trait]"`)
+    pub fn r#macro(&mut self, r#macro: &str) -> &mut Self {
+        self.type_def.r#macro(r#macro);
         self
     }
 
@@ -1156,6 +1170,7 @@ impl TypeDef {
             allow: None,
             repr: None,
             bounds: vec![],
+            macros: vec![],
         }
     }
 
@@ -1171,6 +1186,10 @@ impl TypeDef {
             name: name.to_string(),
             bound: vec![ty.into()],
         });
+    }
+
+    fn r#macro(&mut self, r#macro: &str) {
+        self.macros.push(r#macro.to_string());
     }
 
     fn doc(&mut self, docs: &str) {
@@ -1197,6 +1216,7 @@ impl TypeDef {
         self.fmt_allow(fmt)?;
         self.fmt_derive(fmt)?;
         self.fmt_repr(fmt)?;
+        self.fmt_macros(fmt)?;
 
         if let Some(ref vis) = self.vis {
             write!(fmt, "{} ", vis)?;
@@ -1252,6 +1272,13 @@ impl TypeDef {
             write!(fmt, ")]\n")?;
         }
 
+        Ok(())
+    }
+
+    fn fmt_macros(&self, fmt: &mut Formatter) -> fmt::Result {
+        for m in self.macros.iter() {
+            write!(fmt, "{}\n", m)?;
+        }
         Ok(())
     }
 }
@@ -1451,6 +1478,7 @@ impl Impl {
             assoc_tys: vec![],
             bounds: vec![],
             fns: vec![],
+            macros: vec![],
         }
     }
 
@@ -1477,6 +1505,12 @@ impl Impl {
         T: Into<Type>,
     {
         self.impl_trait = Some(ty.into());
+        self
+    }
+
+    /// Add a macro to the impl block (e.g. `"#[async_trait]"`)
+    pub fn r#macro(&mut self, r#macro: &str) -> &mut Self {
+        self.macros.push(r#macro.to_string());
         self
     }
 
@@ -1521,6 +1555,9 @@ impl Impl {
 
     /// Formats the impl block using the given formatter.
     pub fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
+        for m in self.macros.iter() {
+            write!(fmt, "{}\n", m)?;
+        }
         write!(fmt, "impl")?;
         fmt_generics(&self.generics[..], fmt)?;
 
@@ -1594,6 +1631,7 @@ impl Function {
             body: Some(vec![]),
             attributes: vec![],
             extern_abi: None,
+            r#async: false,
         }
     }
 
@@ -1612,6 +1650,12 @@ impl Function {
     /// Set the function visibility.
     pub fn vis(&mut self, vis: &str) -> &mut Self {
         self.vis = Some(vis.to_string());
+        self
+    }
+
+    /// Set whether this function is async or not
+    pub fn set_async(&mut self, r#async: bool) -> &mut Self {
+        self.r#async = r#async;
         self
     }
 
@@ -1753,6 +1797,10 @@ impl Function {
 
         if let Some(ref extern_abi) = self.extern_abi {
             write!(fmt, "extern \"{extern_abi}\" ", extern_abi = extern_abi)?;
+        }
+
+        if self.r#async {
+            write!(fmt, "async ")?;
         }
 
         write!(fmt, "fn {}", self.name)?;
