@@ -48,7 +48,7 @@ impl<'a> Formatter<'a> {
     }
 
     /// Call the given function with the indentation level incremented by one.
-    pub fn indent<F, R>(&mut self, f: F) -> R
+    fn indent<F, R>(&mut self, f: F) -> R
     where
         F: FnOnce(&mut Self) -> R,
     {
