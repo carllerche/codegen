@@ -20,6 +20,52 @@ pub struct Trait {
 }
 
 
+/// AbsTrait
+pub trait AbsTrait {
+    /// Get type_def instance.
+    fn type_def(&mut self) -> &mut TypeDef;
+
+    /// Add a `where` bound.
+    fn bound<T>(&mut self, name: &str, ty: T) -> &mut Self
+    where
+        T: Into<Type>,
+    {
+        self.type_def().bound(name, ty);
+        self
+    }
+
+    /// Set the documentation.
+    fn doc(&mut self, docs: &str) -> &mut Self {
+        self.type_def().doc(docs);
+        self
+    }
+
+    /// Add a generic.
+    fn generic(&mut self, name: &str) -> &mut Self {
+        self.type_def().ty.generic(name);
+        self
+    }
+
+    /// Returns a reference to the type
+    fn ty(&mut self) -> &Type {
+        &self.type_def().ty
+    }
+
+    /// Set the visibility.
+    fn vis(&mut self, vis: &str) -> &mut Self {
+        self.type_def().vis(vis);
+        self
+    }
+}
+
+
+impl AbsTrait for Trait
+{
+    fn type_def(&mut self) -> &mut TypeDef {
+        &mut self.type_def
+    }
+}
+
 impl Trait {
     /// Return a trait definition with the provided name
     pub fn new(name: &str) -> Self {
@@ -30,32 +76,6 @@ impl Trait {
             fns: vec![],
             macros: vec![],
         }
-    }
-
-    /// Returns a reference to the type
-    pub fn ty(&self) -> &Type {
-        &self.type_def.ty
-    }
-
-    /// Set the trait visibility.
-    pub fn vis(&mut self, vis: &str) -> &mut Self {
-        self.type_def.vis(vis);
-        self
-    }
-
-    /// Add a generic to the trait
-    pub fn generic(&mut self, name: &str) -> &mut Self {
-        self.type_def.ty.generic(name);
-        self
-    }
-
-    /// Add a `where` bound to the trait.
-    pub fn bound<T>(&mut self, name: &str, ty: T) -> &mut Self
-    where
-        T: Into<Type>,
-    {
-        self.type_def.bound(name, ty);
-        self
     }
 
     /// Add a macro to the trait def (e.g. `"#[async_trait]"`)
@@ -70,12 +90,6 @@ impl Trait {
         T: Into<Type>,
     {
         self.parents.push(ty.into());
-        self
-    }
-
-    /// Set the trait documentation.
-    pub fn doc(&mut self, docs: &str) -> &mut Self {
-        self.type_def.doc(docs);
         self
     }
 

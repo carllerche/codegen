@@ -12,7 +12,7 @@
 //! For example:
 //!
 //! ```rust
-//! use codegen::Scope;
+//! use codegen::{AbsStruct, Scope};
 //!
 //! let mut scope = Scope::new();
 //!

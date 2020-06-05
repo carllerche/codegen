@@ -51,22 +51,13 @@ impl Block {
         }
 
         // Inlined `Formatter::fmt`
-
-        if !fmt.is_start_of_line() {
-            write!(fmt, " ")?;
-        }
-
-        write!(fmt, "{{\n")?;
-
-        fmt.indent(|fmt| {
+        fmt.block(|fmt| {
             for b in &self.body {
                 b.fmt(fmt)?;
             }
 
             Ok(())
         })?;
-
-        write!(fmt, "}}")?;
 
         if let Some(ref after) = self.after {
             write!(fmt, "{}", after)?;

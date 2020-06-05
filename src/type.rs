@@ -74,30 +74,30 @@ impl Type {
 
         Ok(())
     }
-    }
+}
 
-    impl<'a> From<&'a str> for Type {
+impl<'a> From<&'a str> for Type {
     fn from(src: &'a str) -> Self {
         Type::new(src)
     }
-    }
+}
 
-    impl From<String> for Type {
+impl From<String> for Type {
     fn from(src: String) -> Self {
         Type {
             name: src,
             generics: vec![],
         }
     }
-    }
+}
 
-    impl<'a> From<&'a String> for Type {
+impl<'a> From<&'a String> for Type {
     fn from(src: &'a String) -> Self {
         Type::new(src)
     }
-    }
+}
 
-    impl<'a> From<&'a Type> for Type {
+impl<'a> From<&'a Type> for Type {
     fn from(src: &'a Type) -> Self {
         src.clone()
     }

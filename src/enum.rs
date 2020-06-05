@@ -4,7 +4,8 @@ use formatter::Formatter;
 use type_def::TypeDef;
 use variant::Variant;
 
-use r#type::Type;
+use r#trait::AbsTrait;
+use r#struct::AbsStruct;
 
 
 /// Defines an enumeration.
@@ -15,6 +16,14 @@ pub struct Enum {
 }
 
 
+impl AbsTrait for Enum{
+    fn type_def(&mut self) -> &mut TypeDef {
+        &mut self.type_def
+    }
+}
+impl AbsStruct for Enum{}
+
+
 impl Enum {
     /// Return a enum definition with the provided name.
     pub fn new(name: &str) -> Self {
@@ -22,56 +31,6 @@ impl Enum {
             type_def: TypeDef::new(name),
             variants: vec![],
         }
-    }
-
-    /// Returns a reference to the type.
-    pub fn ty(&self) -> &Type {
-        &self.type_def.ty
-    }
-
-    /// Set the enum visibility.
-    pub fn vis(&mut self, vis: &str) -> &mut Self {
-        self.type_def.vis(vis);
-        self
-    }
-
-    /// Add a generic to the enum.
-    pub fn generic(&mut self, name: &str) -> &mut Self {
-        self.type_def.ty.generic(name);
-        self
-    }
-
-    /// Add a `where` bound to the enum.
-    pub fn bound<T>(&mut self, name: &str, ty: T) -> &mut Self
-    where
-        T: Into<Type>,
-    {
-        self.type_def.bound(name, ty);
-        self
-    }
-
-    /// Set the enum documentation.
-    pub fn doc(&mut self, docs: &str) -> &mut Self {
-        self.type_def.doc(docs);
-        self
-    }
-
-    /// Add a new type that the struct should derive.
-    pub fn derive(&mut self, name: &str) -> &mut Self {
-        self.type_def.derive(name);
-        self
-    }
-
-    /// Specify lint attribute to supress a warning or error.
-    pub fn allow(&mut self, allow: &str) -> &mut Self {
-        self.type_def.allow(allow);
-        self
-    }
-
-    /// Specify representation.
-    pub fn repr(&mut self, repr: &str) -> &mut Self {
-        self.type_def.repr(repr);
-        self
     }
 
     /// Push a variant to the enum, returning a mutable reference to it.
