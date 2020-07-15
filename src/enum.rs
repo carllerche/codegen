@@ -86,6 +86,12 @@ impl Enum {
         self
     }
 
+    /// Mark this enum with `#[non_exhaustive]`.
+    pub fn non_exhaustive(&mut self) -> &mut Self {
+        self.type_def.r#macro("#[non_exhaustive]");
+        self
+    }
+
     /// Formats the enum using the given formatter.
     pub fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
         self.type_def.fmt_head("enum", &[], fmt)?;

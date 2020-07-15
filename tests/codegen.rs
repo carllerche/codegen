@@ -406,6 +406,47 @@ enum IpAddrKind {
 }
 
 #[test]
+fn enum_with_non_exhaustive() {
+    let mut scope = Scope::new();
+
+    scope.new_enum("IpAddrKind")
+        .non_exhaustive()
+        .push_variant(Variant::new("V4"))
+        .push_variant(Variant::new("V6"))
+        ;
+
+    let expect = r#"
+#[non_exhaustive]
+enum IpAddrKind {
+    V4,
+    V6,
+}"#;
+
+    assert_eq!(scope.to_string(), &expect[1..]);
+}
+
+#[test]
+fn enum_with_variant_doc() {
+    let mut scope = Scope::new();
+
+    let mut v = Variant::new("V4");
+    v.doc("best");
+    scope.new_enum("IpAddrKind")
+        .push_variant(v)
+        .push_variant(Variant::new("V6"))
+        ;
+
+    let expect = r#"
+enum IpAddrKind {
+    /// best
+    V4,
+    V6,
+}"#;
+
+    assert_eq!(scope.to_string(), &expect[1..]);
+}
+
+#[test]
 fn scoped_imports() {
     let mut scope = Scope::new();
     scope.new_module("foo")

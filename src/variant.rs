@@ -4,6 +4,7 @@ use fields::Fields;
 use formatter::Formatter;
 
 use r#type::Type;
+use docs::Docs;
 
 
 /// Defines an enum variant.
@@ -11,6 +12,9 @@ use r#type::Type;
 pub struct Variant {
     name: String,
     fields: Fields,
+
+    /// Variant documentation
+    docs: Option<Docs>,
 }
 
 
@@ -20,6 +24,7 @@ impl Variant {
         Variant {
             name: name.to_string(),
             fields: Fields::Empty,
+            docs: None,
         }
     }
 
@@ -38,8 +43,17 @@ impl Variant {
         self
     }
 
+    /// Set the variant documentation.
+    pub fn doc(&mut self, docs: &str) -> &mut Self {
+        self.docs = Some(Docs::new(docs));
+        self
+    }
+
     /// Formats the variant using the given formatter.
     pub fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
+        if let Some(ref docs) = self.docs {
+            docs.fmt(fmt)?;
+        }
         write!(fmt, "{}", self.name)?;
         self.fields.fmt(fmt)?;
         write!(fmt, ",\n")?;

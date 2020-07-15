@@ -1,3 +1,9 @@
+# unreleased ()
+
+### Added
+ - Documentation comments for enum variants
+ - Marking an enum `non_exhaustive`
+
 # 0.1.3 (May 9, 2020)
 
 ### Added
