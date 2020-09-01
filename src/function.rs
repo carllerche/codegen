@@ -1,15 +1,14 @@
 use std::fmt::{self, Write};
 
-use block::Block;
-use body::Body;
-use bound::Bound;
-use docs::Docs;
-use field::Field;
-use formatter::{fmt_bounds, fmt_generics};
-use formatter::Formatter;
+use crate::block::Block;
+use crate::body::Body;
+use crate::bound::Bound;
+use crate::docs::Docs;
+use crate::field::Field;
+use crate::formatter::Formatter;
+use crate::formatter::{fmt_bounds, fmt_generics};
 
-use r#type::Type;
-
+use crate::r#type::Type;
 
 /// Defines a function.
 #[derive(Debug, Clone)]
@@ -53,7 +52,6 @@ pub struct Function {
     /// Whether or not this function is `async` or not
     r#async: bool,
 }
-
 
 impl Function {
     /// Return a new function definition.
@@ -211,7 +209,7 @@ impl Function {
     }
 
     /// Formats the function using the given formatter.
-    pub fn fmt(&self, is_trait: bool, fmt: &mut Formatter) -> fmt::Result {
+    pub fn fmt(&self, is_trait: bool, fmt: &mut Formatter<'_>) -> fmt::Result {
         if let Some(ref docs) = self.docs {
             docs.fmt(fmt)?;
         }

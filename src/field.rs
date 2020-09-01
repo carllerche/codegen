@@ -1,5 +1,4 @@
-use r#type::Type;
-
+use crate::r#type::Type;
 
 /// Defines a struct field.
 #[derive(Debug, Clone)]
@@ -17,11 +16,11 @@ pub struct Field {
     pub annotation: Vec<String>,
 }
 
-
 impl Field {
     /// Return a field definition with the provided name and type
     pub fn new<T>(name: &str, ty: T) -> Self
-    where T: Into<Type>,
+    where
+        T: Into<Type>,
     {
         Field {
             name: name.into(),

@@ -1,11 +1,10 @@
 use std::fmt;
 
-use formatter::Formatter;
-use type_def::TypeDef;
-use variant::Variant;
+use crate::formatter::Formatter;
+use crate::type_def::TypeDef;
+use crate::variant::Variant;
 
-use r#type::Type;
-
+use crate::r#type::Type;
 
 /// Defines an enumeration.
 #[derive(Debug, Clone)]
@@ -13,7 +12,6 @@ pub struct Enum {
     type_def: TypeDef,
     variants: Vec<Variant>,
 }
-
 
 impl Enum {
     /// Return a enum definition with the provided name.
@@ -87,7 +85,7 @@ impl Enum {
     }
 
     /// Formats the enum using the given formatter.
-    pub fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
+    pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         self.type_def.fmt_head("enum", &[], fmt)?;
 
         fmt.block(|fmt| {

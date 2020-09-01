@@ -1,8 +1,7 @@
 use std::fmt::{self, Write};
 
-use body::Body;
-use formatter::Formatter;
-
+use crate::body::Body;
+use crate::formatter::Formatter;
 
 /// Defines a code block. This is used to define a function body.
 #[derive(Debug, Clone)]
@@ -11,7 +10,6 @@ pub struct Block {
     after: Option<String>,
     body: Vec<Body>,
 }
-
 
 impl Block {
     /// Returns an empty code block.
@@ -45,7 +43,7 @@ impl Block {
     }
 
     /// Formats the block using the given formatter.
-    pub fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
+    pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         if let Some(ref before) = self.before {
             write!(fmt, "{}", before)?;
         }

@@ -1,10 +1,9 @@
 use std::fmt::{self, Write};
 
-use field::Field;
-use formatter::Formatter;
+use crate::field::Field;
+use crate::formatter::Formatter;
 
-use r#type::Type;
-
+use crate::r#type::Type;
 
 /// Defines a set of fields.
 #[derive(Debug, Clone)]
@@ -14,10 +13,8 @@ pub enum Fields {
     Named(Vec<Field>),
 }
 
-
 impl Fields {
-    pub fn push_named(&mut self, field: Field) -> &mut Self
-    {
+    pub fn push_named(&mut self, field: Field) -> &mut Self {
         match *self {
             Fields::Empty => {
                 *self = Fields::Named(vec![field]);
@@ -32,7 +29,8 @@ impl Fields {
     }
 
     pub fn named<T>(&mut self, name: &str, ty: T) -> &mut Self
-    where T: Into<Type>,
+    where
+        T: Into<Type>,
     {
         self.push_named(Field {
             name: name.to_string(),
@@ -59,7 +57,7 @@ impl Fields {
         self
     }
 
-    pub fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
+    pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         match *self {
             Fields::Named(ref fields) => {
                 assert!(!fields.is_empty());

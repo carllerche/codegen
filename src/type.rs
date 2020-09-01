@@ -1,7 +1,6 @@
 use std::fmt::{self, Write};
 
-use formatter::Formatter;
-
+use crate::formatter::Formatter;
 
 /// Defines a type.
 #[derive(Debug, Clone)]
@@ -9,7 +8,6 @@ pub struct Type {
     name: String,
     generics: Vec<Type>,
 }
-
 
 impl Type {
     /// Return a new type with the given name.
@@ -53,12 +51,12 @@ impl Type {
     }
 
     /// Formats the struct using the given formatter.
-    pub fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
+    pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         write!(fmt, "{}", self.name)?;
         Type::fmt_slice(&self.generics, fmt)
     }
 
-    fn fmt_slice(generics: &[Type], fmt: &mut Formatter) -> fmt::Result {
+    fn fmt_slice(generics: &[Type], fmt: &mut Formatter<'_>) -> fmt::Result {
         if !generics.is_empty() {
             write!(fmt, "<")?;
 
@@ -74,30 +72,30 @@ impl Type {
 
         Ok(())
     }
-    }
+}
 
-    impl<'a> From<&'a str> for Type {
+impl<'a> From<&'a str> for Type {
     fn from(src: &'a str) -> Self {
         Type::new(src)
     }
-    }
+}
 
-    impl From<String> for Type {
+impl From<String> for Type {
     fn from(src: String) -> Self {
         Type {
             name: src,
             generics: vec![],
         }
     }
-    }
+}
 
-    impl<'a> From<&'a String> for Type {
+impl<'a> From<&'a String> for Type {
     fn from(src: &'a String) -> Self {
         Type::new(src)
     }
-    }
+}
 
-    impl<'a> From<&'a Type> for Type {
+impl<'a> From<&'a Type> for Type {
     fn from(src: &'a Type) -> Self {
         src.clone()
     }

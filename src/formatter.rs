@@ -1,12 +1,10 @@
 use std::fmt::{self, Write};
 
-use bound::Bound;
+use crate::bound::Bound;
 
-use r#type::Type;
-
+use crate::r#type::Type;
 
 const DEFAULT_INDENT: usize = 4;
-
 
 /// Configures how a scope is formatted.
 #[derive(Debug)]
@@ -20,7 +18,6 @@ pub struct Formatter<'a> {
     /// Number of spaces per indentiation
     indent: usize,
 }
-
 
 impl<'a> Formatter<'a> {
     /// Return a new formatter that writes to the given string.
@@ -102,9 +99,8 @@ impl<'a> fmt::Write for Formatter<'a> {
     }
 }
 
-
 /// Format generics.
-pub fn fmt_generics(generics: &[String], fmt: &mut Formatter) -> fmt::Result {
+pub fn fmt_generics(generics: &[String], fmt: &mut Formatter<'_>) -> fmt::Result {
     if !generics.is_empty() {
         write!(fmt, "<")?;
 
@@ -122,7 +118,7 @@ pub fn fmt_generics(generics: &[String], fmt: &mut Formatter) -> fmt::Result {
 }
 
 /// Format generic bounds.
-pub fn fmt_bounds(bounds: &[Bound], fmt: &mut Formatter) -> fmt::Result {
+pub fn fmt_bounds(bounds: &[Bound], fmt: &mut Formatter<'_>) -> fmt::Result {
     if !bounds.is_empty() {
         write!(fmt, "\n")?;
 
@@ -142,7 +138,7 @@ pub fn fmt_bounds(bounds: &[Bound], fmt: &mut Formatter) -> fmt::Result {
 }
 
 /// Format multiple generic bounds.
-pub fn fmt_bound_rhs(tys: &[Type], fmt: &mut Formatter) -> fmt::Result {
+pub fn fmt_bound_rhs(tys: &[Type], fmt: &mut Formatter<'_>) -> fmt::Result {
     for (i, ty) in tys.iter().enumerate() {
         if i != 0 {
             write!(fmt, " + ")?

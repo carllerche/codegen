@@ -13,6 +13,7 @@ documentation = "https://docs.rs/codegen/0.1.3/codegen"
 homepage = "https://github.com/carllerche/codegen"
 repository = "https://github.com/carllerche/codegen"
 readme = "README.md"
+edition = "2018"
 
 [dependencies]
 indexmap = "1.0.2"

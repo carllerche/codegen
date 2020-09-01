@@ -1,12 +1,9 @@
-use bound::Bound;
-
-use r#type::Type;
-
+use crate::bound::Bound;
+use crate::r#type::Type;
 
 /// Defines an associated type.
 #[derive(Debug, Clone)]
 pub struct AssociatedType(pub Bound);
-
 
 impl AssociatedType {
     /// Add a bound to the associated type.

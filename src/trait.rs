@@ -1,13 +1,12 @@
 use std::fmt::{self, Write};
 
-use associated_type::AssociatedType;
-use bound::Bound;
-use formatter::{Formatter, fmt_bound_rhs};
-use function::Function;
-use type_def::TypeDef;
+use crate::associated_type::AssociatedType;
+use crate::bound::Bound;
+use crate::formatter::{fmt_bound_rhs, Formatter};
+use crate::function::Function;
+use crate::type_def::TypeDef;
 
-use r#type::Type;
-
+use crate::r#type::Type;
 
 /// Define a trait.
 #[derive(Debug, Clone)]
@@ -18,7 +17,6 @@ pub struct Trait {
     fns: Vec<Function>,
     macros: Vec<String>,
 }
-
 
 impl Trait {
     /// Return a trait definition with the provided name
@@ -106,7 +104,7 @@ impl Trait {
     }
 
     /// Formats the scope using the given formatter.
-    pub fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
+    pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         self.type_def.fmt_head("trait", &self.parents, fmt)?;
 
         fmt.block(|fmt| {

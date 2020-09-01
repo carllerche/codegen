@@ -1,13 +1,11 @@
 use std::fmt::{self, Write};
 
-use formatter::Formatter;
-
+use crate::formatter::Formatter;
 
 #[derive(Debug, Clone)]
 pub struct Docs {
     docs: String,
 }
-
 
 impl Docs {
     pub fn new(docs: &str) -> Self {
@@ -16,7 +14,7 @@ impl Docs {
         }
     }
 
-    pub fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
+    pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         for line in self.docs.lines() {
             write!(fmt, "/// {}\n", line)?;
         }
