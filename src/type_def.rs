@@ -14,7 +14,7 @@ pub struct TypeDef {
     vis: Option<String>,
     docs: Option<Docs>,
     derive: Vec<String>,
-    allow: Option<String>,
+    allow: Vec<String>,
     repr: Option<String>,
     bounds: Vec<Bound>,
     macros: Vec<String>,
@@ -29,7 +29,7 @@ impl TypeDef {
             vis: None,
             docs: None,
             derive: vec![],
-            allow: None,
+            allow: vec![],
             repr: None,
             bounds: vec![],
             macros: vec![],
@@ -63,7 +63,7 @@ impl TypeDef {
     }
 
     pub fn allow(&mut self, allow: &str) {
-        self.allow = Some(allow.to_string());
+        self.allow.push(allow.to_string());
     }
 
     pub fn repr(&mut self, repr: &str) {
@@ -105,7 +105,7 @@ impl TypeDef {
     }
 
     fn fmt_allow(&self, fmt: &mut Formatter) -> fmt::Result {
-        if let Some(ref allow) = self.allow {
+        for allow in &self.allow {
             write!(fmt, "#[allow({})]\n", allow)?;
         }
 
