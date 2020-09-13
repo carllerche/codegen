@@ -1,6 +1,6 @@
 #![deny(missing_debug_implementations, missing_docs)]
 #![doc(html_root_url = "https://docs.rs/codegen/0.1.1")]
-#![warn(rust_2018_idioms)]
+#![warn(rust_2018_idioms, clippy::nursery)]
 
 //! Provides a builder API for generating Rust code.
 //!
@@ -46,7 +46,6 @@ mod r#impl;
 mod r#struct;
 mod r#trait;
 mod r#type;
-
 
 pub use associated_type::*;
 pub use block::*;

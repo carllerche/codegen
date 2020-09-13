@@ -15,7 +15,7 @@ pub struct Variant {
 impl Variant {
     /// Return a new enum variant with the given name.
     pub fn new(name: &str) -> Self {
-        Variant {
+        Self {
             name: name.to_string(),
             fields: Fields::Empty,
         }
@@ -40,7 +40,7 @@ impl Variant {
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         write!(fmt, "{}", self.name)?;
         self.fields.fmt(fmt)?;
-        write!(fmt, ",\n")?;
+        writeln!(fmt, ",")?;
 
         Ok(())
     }

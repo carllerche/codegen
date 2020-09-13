@@ -32,7 +32,7 @@ pub struct Scope {
 impl Scope {
     /// Returns a new scope
     pub fn new() -> Self {
-        Scope {
+        Self {
             docs: None,
             imports: IndexMap::new(),
             items: vec![],
@@ -69,8 +69,8 @@ impl Scope {
     pub fn new_module(&mut self, name: &str) -> &mut Module {
         self.push_module(Module::new(name));
 
-        match *self.items.last_mut().unwrap() {
-            Item::Module(ref mut v) => v,
+        match self.items.last_mut().unwrap() {
+            Item::Module(v) => v,
             _ => unreachable!(),
         }
     }
@@ -83,7 +83,7 @@ impl Scope {
         self.items
             .iter_mut()
             .filter_map(|item| match item {
-                &mut Item::Module(ref mut module) if module.name == *name => Some(module),
+                Item::Module(ref mut module) if module.name == *name => Some(module),
                 _ => None,
             })
             .next()
@@ -97,7 +97,7 @@ impl Scope {
         self.items
             .iter()
             .filter_map(|item| match item {
-                &Item::Module(ref module) if module.name == *name => Some(module),
+                Item::Module(module) if module.name == *name => Some(module),
                 _ => None,
             })
             .next()
@@ -135,8 +135,8 @@ impl Scope {
     pub fn new_struct(&mut self, name: &str) -> &mut Struct {
         self.push_struct(Struct::new(name));
 
-        match *self.items.last_mut().unwrap() {
-            Item::Struct(ref mut v) => v,
+        match self.items.last_mut().unwrap() {
+            Item::Struct(v) => v,
             _ => unreachable!(),
         }
     }
@@ -238,23 +238,23 @@ impl Scope {
         self.fmt_imports(fmt)?;
 
         if !self.imports.is_empty() {
-            write!(fmt, "\n")?;
+            writeln!(fmt)?;
         }
 
         for (i, item) in self.items.iter().enumerate() {
             if i != 0 {
-                write!(fmt, "\n")?;
+                writeln!(fmt)?;
             }
 
-            match *item {
-                Item::Module(ref v) => v.fmt(fmt)?,
-                Item::Struct(ref v) => v.fmt(fmt)?,
-                Item::Function(ref v) => v.fmt(false, fmt)?,
-                Item::Trait(ref v) => v.fmt(fmt)?,
-                Item::Enum(ref v) => v.fmt(fmt)?,
-                Item::Impl(ref v) => v.fmt(fmt)?,
-                Item::Raw(ref v) => {
-                    write!(fmt, "{}\n", v)?;
+            match &item {
+                Item::Module(v) => v.fmt(fmt)?,
+                Item::Struct(v) => v.fmt(fmt)?,
+                Item::Function(v) => v.fmt(false, fmt)?,
+                Item::Trait(v) => v.fmt(fmt)?,
+                Item::Enum(v) => v.fmt(fmt)?,
+                Item::Impl(v) => v.fmt(fmt)?,
+                Item::Raw(v) => {
+                    writeln!(fmt, "{}", v)?;
                 }
             }
         }
@@ -288,7 +288,7 @@ impl Scope {
                 }
 
                 if !tys.is_empty() {
-                    if let Some(ref vis) = *vis {
+                    if let Some(vis) = &vis {
                         write!(fmt, "{} ", vis)?;
                     }
 
@@ -304,9 +304,9 @@ impl Scope {
                             write!(fmt, "{}", ty)?;
                         }
 
-                        write!(fmt, "}};\n")?;
+                        writeln!(fmt, "}};")?;
                     } else if tys.len() == 1 {
-                        write!(fmt, "{};\n", tys[0])?;
+                        writeln!(fmt, "{};", tys[0])?;
                     }
                 }
             }

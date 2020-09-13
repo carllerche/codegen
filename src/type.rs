@@ -12,7 +12,7 @@ pub struct Type {
 impl Type {
     /// Return a new type with the given name.
     pub fn new(name: &str) -> Self {
-        Type {
+        Self {
             name: name.to_string(),
             generics: vec![],
         }
@@ -21,11 +21,11 @@ impl Type {
     /// Add a generic to the type.
     pub fn generic<T>(&mut self, ty: T) -> &mut Self
     where
-        T: Into<Type>,
+        T: Into<Self>,
     {
         // Make sure that the name doesn't already include generics
         assert!(
-            !self.name.contains("<"),
+            !self.name.contains('<'),
             "type name already includes generics"
         );
 
@@ -36,7 +36,7 @@ impl Type {
     /// Rewrite the `Type` with the provided path
     ///
     /// TODO: Is this needed?
-    pub fn path(&self, path: &str) -> Type {
+    pub fn path(&self, path: &str) -> Self {
         // TODO: This isn't really correct
         assert!(!self.name.contains("::"));
 
@@ -44,7 +44,7 @@ impl Type {
         name.push_str("::");
         name.push_str(&self.name);
 
-        Type {
+        Self {
             name,
             generics: self.generics.clone(),
         }
@@ -53,10 +53,10 @@ impl Type {
     /// Formats the struct using the given formatter.
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         write!(fmt, "{}", self.name)?;
-        Type::fmt_slice(&self.generics, fmt)
+        Self::fmt_slice(&self.generics, fmt)
     }
 
-    fn fmt_slice(generics: &[Type], fmt: &mut Formatter<'_>) -> fmt::Result {
+    fn fmt_slice(generics: &[Self], fmt: &mut Formatter<'_>) -> fmt::Result {
         if !generics.is_empty() {
             write!(fmt, "<")?;
 
@@ -74,29 +74,29 @@ impl Type {
     }
 }
 
-impl<'a> From<&'a str> for Type {
-    fn from(src: &'a str) -> Self {
-        Type::new(src)
+impl From<&str> for Type {
+    fn from(src: &str) -> Self {
+        Self::new(src)
     }
 }
 
 impl From<String> for Type {
     fn from(src: String) -> Self {
-        Type {
+        Self {
             name: src,
             generics: vec![],
         }
     }
 }
 
-impl<'a> From<&'a String> for Type {
-    fn from(src: &'a String) -> Self {
-        Type::new(src)
+impl From<&String> for Type {
+    fn from(src: &String) -> Self {
+        Self::new(src)
     }
 }
 
-impl<'a> From<&'a Type> for Type {
-    fn from(src: &'a Type) -> Self {
+impl From<&Type> for Type {
+    fn from(src: &Self) -> Self {
         src.clone()
     }
 }

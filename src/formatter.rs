@@ -22,7 +22,7 @@ pub struct Formatter<'a> {
 impl<'a> Formatter<'a> {
     /// Return a new formatter that writes to the given string.
     pub fn new(dst: &'a mut String) -> Self {
-        Formatter {
+        Self {
             dst,
             spaces: 0,
             indent: DEFAULT_INDENT,
@@ -38,9 +38,9 @@ impl<'a> Formatter<'a> {
             write!(self, " ")?;
         }
 
-        write!(self, "{{\n")?;
+        writeln!(self, "{{")?;
         self.indent(f)?;
-        write!(self, "}}\n")?;
+        writeln!(self, "}}")?;
         Ok(())
     }
 
@@ -57,7 +57,7 @@ impl<'a> Formatter<'a> {
 
     /// Check if current destination is the start of a new line.
     pub fn is_start_of_line(&self) -> bool {
-        self.dst.is_empty() || self.dst.as_bytes().last() == Some(&b'\n')
+        self.dst.is_empty() || self.dst.ends_with('\n')
     }
 
     fn push_spaces(&mut self) {
@@ -120,17 +120,17 @@ pub fn fmt_generics(generics: &[String], fmt: &mut Formatter<'_>) -> fmt::Result
 /// Format generic bounds.
 pub fn fmt_bounds(bounds: &[Bound], fmt: &mut Formatter<'_>) -> fmt::Result {
     if !bounds.is_empty() {
-        write!(fmt, "\n")?;
+        writeln!(fmt)?;
 
         // Write first bound
         write!(fmt, "where {}: ", bounds[0].name)?;
         fmt_bound_rhs(&bounds[0].bound, fmt)?;
-        write!(fmt, ",\n")?;
+        writeln!(fmt, ",")?;
 
         for bound in &bounds[1..] {
             write!(fmt, "      {}: ", bound.name)?;
             fmt_bound_rhs(&bound.bound, fmt)?;
-            write!(fmt, ",\n")?;
+            writeln!(fmt, ",")?;
         }
     }
 

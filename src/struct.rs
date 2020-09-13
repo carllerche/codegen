@@ -19,14 +19,14 @@ pub struct Struct {
 impl Struct {
     /// Return a structure definition with the provided name
     pub fn new(name: &str) -> Self {
-        Struct {
+        Self {
             type_def: TypeDef::new(name),
             fields: Fields::Empty,
         }
     }
 
     /// Returns a reference to the type
-    pub fn ty(&self) -> &Type {
+    pub const fn ty(&self) -> &Type {
         &self.type_def.ty
     }
 
@@ -115,10 +115,10 @@ impl Struct {
 
         match self.fields {
             Fields::Empty => {
-                write!(fmt, ";\n")?;
+                writeln!(fmt, ";")?;
             }
             Fields::Tuple(..) => {
-                write!(fmt, ";\n")?;
+                writeln!(fmt, ";")?;
             }
             _ => {}
         }

@@ -14,7 +14,7 @@ pub struct Block {
 impl Block {
     /// Returns an empty code block.
     pub fn new(before: &str) -> Self {
-        Block {
+        Self {
             before: Some(before.to_string()),
             after: None,
             body: vec![],
@@ -31,7 +31,7 @@ impl Block {
     }
 
     /// Push a nested block to this block.
-    pub fn push_block(&mut self, block: Block) -> &mut Self {
+    pub fn push_block(&mut self, block: Self) -> &mut Self {
         self.body.push(Body::Block(block));
         self
     }
@@ -54,7 +54,7 @@ impl Block {
             write!(fmt, " ")?;
         }
 
-        write!(fmt, "{{\n")?;
+        writeln!(fmt, "{{")?;
 
         fmt.indent(|fmt| {
             for b in &self.body {
@@ -70,7 +70,7 @@ impl Block {
             write!(fmt, "{}", after)?;
         }
 
-        write!(fmt, "\n")?;
+        writeln!(fmt)?;
         Ok(())
     }
 }
