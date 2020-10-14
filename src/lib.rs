@@ -1,5 +1,6 @@
-#![deny(warnings, missing_debug_implementations, missing_docs)]
+#![deny(missing_debug_implementations, missing_docs)]
 #![doc(html_root_url = "https://docs.rs/codegen/0.1.1")]
+#![warn(rust_2018_idioms)]
 
 //! Provides a builder API for generating Rust code.
 //!

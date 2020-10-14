@@ -1,12 +1,11 @@
 use std::fmt::{self, Write};
 
-use field::Field;
-use fields::Fields;
-use formatter::Formatter;
-use type_def::TypeDef;
+use crate::field::Field;
+use crate::fields::Fields;
+use crate::formatter::Formatter;
+use crate::type_def::TypeDef;
 
-use r#type::Type;
-
+use crate::r#type::Type;
 
 /// Defines a struct.
 #[derive(Debug, Clone)]
@@ -16,7 +15,6 @@ pub struct Struct {
     /// Struct fields
     fields: Fields,
 }
-
 
 impl Struct {
     /// Return a structure definition with the provided name
@@ -81,8 +79,7 @@ impl Struct {
     ///
     /// A struct can either set named fields with this function or tuple fields
     /// with `push_tuple_field`, but not both.
-    pub fn push_field(&mut self, field: Field) -> &mut Self
-    {
+    pub fn push_field(&mut self, field: Field) -> &mut Self {
         self.fields.push_named(field);
         self
     }
@@ -112,7 +109,7 @@ impl Struct {
     }
 
     /// Formats the struct using the given formatter.
-    pub fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
+    pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         self.type_def.fmt_head("struct", &[], fmt)?;
         self.fields.fmt(fmt)?;
 

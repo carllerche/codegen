@@ -7,7 +7,6 @@ pub struct Import {
     pub vis: Option<String>,
 }
 
-
 impl Import {
     /// Return a new import.
     pub fn new(path: &str, ty: &str) -> Self {

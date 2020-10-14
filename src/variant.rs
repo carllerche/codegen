@@ -1,10 +1,9 @@
 use std::fmt::{self, Write};
 
-use fields::Fields;
-use formatter::Formatter;
+use crate::fields::Fields;
+use crate::formatter::Formatter;
 
-use r#type::Type;
-
+use crate::r#type::Type;
 
 /// Defines an enum variant.
 #[derive(Debug, Clone)]
@@ -12,7 +11,6 @@ pub struct Variant {
     name: String,
     fields: Fields,
 }
-
 
 impl Variant {
     /// Return a new enum variant with the given name.
@@ -39,7 +37,7 @@ impl Variant {
     }
 
     /// Formats the variant using the given formatter.
-    pub fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
+    pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         write!(fmt, "{}", self.name)?;
         self.fields.fmt(fmt)?;
         write!(fmt, ",\n")?;

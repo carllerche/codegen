@@ -1,11 +1,10 @@
 use std::fmt::{self, Write};
 
-use bound::Bound;
-use docs::Docs;
-use formatter::{Formatter, fmt_bounds};
+use crate::bound::Bound;
+use crate::docs::Docs;
+use crate::formatter::{fmt_bounds, Formatter};
 
-use r#type::Type;
-
+use crate::r#type::Type;
 
 /// Defines a type definition.
 #[derive(Debug, Clone)]
@@ -19,7 +18,6 @@ pub struct TypeDef {
     bounds: Vec<Bound>,
     macros: Vec<String>,
 }
-
 
 impl TypeDef {
     /// Return a structure definition with the provided name
@@ -70,7 +68,12 @@ impl TypeDef {
         self.repr = Some(repr.to_string());
     }
 
-    pub fn fmt_head(&self, keyword: &str, parents: &[Type], fmt: &mut Formatter) -> fmt::Result {
+    pub fn fmt_head(
+        &self,
+        keyword: &str,
+        parents: &[Type],
+        fmt: &mut Formatter<'_>,
+    ) -> fmt::Result {
         if let Some(ref docs) = self.docs {
             docs.fmt(fmt)?;
         }
@@ -104,7 +107,7 @@ impl TypeDef {
         Ok(())
     }
 
-    fn fmt_allow(&self, fmt: &mut Formatter) -> fmt::Result {
+    fn fmt_allow(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         if let Some(ref allow) = self.allow {
             write!(fmt, "#[allow({})]\n", allow)?;
         }
@@ -112,7 +115,7 @@ impl TypeDef {
         Ok(())
     }
 
-    fn fmt_repr(&self, fmt: &mut Formatter) -> fmt::Result {
+    fn fmt_repr(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         if let Some(ref repr) = self.repr {
             write!(fmt, "#[repr({})]\n", repr)?;
         }
@@ -120,7 +123,7 @@ impl TypeDef {
         Ok(())
     }
 
-    fn fmt_derive(&self, fmt: &mut Formatter) -> fmt::Result {
+    fn fmt_derive(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         if !self.derive.is_empty() {
             write!(fmt, "#[derive(")?;
 
@@ -137,7 +140,7 @@ impl TypeDef {
         Ok(())
     }
 
-    fn fmt_macros(&self, fmt: &mut Formatter) -> fmt::Result {
+    fn fmt_macros(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         for m in self.macros.iter() {
             write!(fmt, "{}\n", m)?;
         }

@@ -1,15 +1,14 @@
 use std::fmt::{self, Write};
 
-use docs::Docs;
-use formatter::Formatter;
-use function::Function;
-use scope::Scope;
+use crate::docs::Docs;
+use crate::formatter::Formatter;
+use crate::function::Function;
+use crate::scope::Scope;
 
-use r#enum::Enum;
-use r#impl::Impl;
-use r#struct::Struct;
-use r#trait::Trait;
-
+use crate::r#enum::Enum;
+use crate::r#impl::Impl;
+use crate::r#struct::Struct;
+use crate::r#trait::Trait;
 
 /// Defines a module.
 #[derive(Debug, Clone)]
@@ -26,7 +25,6 @@ pub struct Module {
     /// Contents of the module
     scope: Scope,
 }
-
 
 impl Module {
     /// Return a new, blank module
@@ -165,7 +163,7 @@ impl Module {
     }
 
     /// Formats the module using the given formatter.
-    pub fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
+    pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         if let Some(ref vis) = self.vis {
             write!(fmt, "{} ", vis)?;
         }

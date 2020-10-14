@@ -1,12 +1,11 @@
 use std::fmt::{self, Write};
 
-use bound::Bound;
-use field::Field;
-use formatter::{Formatter, fmt_bounds, fmt_generics};
-use function::Function;
+use crate::bound::Bound;
+use crate::field::Field;
+use crate::formatter::{fmt_bounds, fmt_generics, Formatter};
+use crate::function::Function;
 
-use r#type::Type;
-
+use crate::r#type::Type;
 
 /// Defines an impl block.
 #[derive(Debug, Clone)]
@@ -30,7 +29,6 @@ pub struct Impl {
 
     macros: Vec<String>,
 }
-
 
 impl Impl {
     /// Return a new impl definition
@@ -121,7 +119,7 @@ impl Impl {
     }
 
     /// Formats the impl block using the given formatter.
-    pub fn fmt(&self, fmt: &mut Formatter) -> fmt::Result {
+    pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         for m in self.macros.iter() {
             write!(fmt, "{}\n", m)?;
         }
