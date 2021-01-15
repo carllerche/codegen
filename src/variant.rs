@@ -8,8 +8,17 @@ use crate::r#type::Type;
 /// Defines an enum variant.
 #[derive(Debug, Clone)]
 pub struct Variant {
-    name: String,
-    fields: Fields,
+    /// Variant name
+    pub name: String,
+
+    /// Variant fields
+    pub fields: Fields,
+
+    /// Variant documentation
+    pub documentation: Vec<String>,
+
+    /// Variant annotation
+    pub annotation: Vec<String>,
 }
 
 impl Variant {
@@ -18,6 +27,8 @@ impl Variant {
         Variant {
             name: name.to_string(),
             fields: Fields::Empty,
+            documentation: Vec::new(),
+            annotation: Vec::new(),
         }
     }
 
@@ -36,8 +47,30 @@ impl Variant {
         self
     }
 
+    /// Set variant's documentation.
+    pub fn doc(&mut self, documentation: Vec<&str>) -> &mut Self {
+        self.documentation = documentation.iter().map(|doc| doc.to_string()).collect();
+        self
+    }
+
+    /// Set variant's annotation.
+    pub fn annotation(&mut self, annotation: Vec<&str>) -> &mut Self {
+        self.annotation = annotation.iter().map(|ann| ann.to_string()).collect();
+        self
+    }
+
     /// Formats the variant using the given formatter.
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
+        if !self.documentation.is_empty() {
+            for doc in &self.documentation {
+                write!(fmt, "/// {}\n", doc)?;
+            }
+        }
+        if !self.annotation.is_empty() {
+            for ann in &self.annotation {
+                write!(fmt, "{}\n", ann)?;
+            }
+        }
         write!(fmt, "{}", self.name)?;
         self.fields.fmt(fmt)?;
         write!(fmt, ",\n")?;
