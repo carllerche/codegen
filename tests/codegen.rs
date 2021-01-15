@@ -561,3 +561,47 @@ impl Foo for Bar {
 
     assert_eq!(scope.to_string(), &expect[1..]);
 }
+
+#[test]
+fn struct_with_multiple_allow() {
+    let mut scope = Scope::new();
+
+    scope
+        .new_struct("Foo")
+        .allow("dead_code")
+        .allow("clippy::all")
+        .field("one", "u8")
+        .field("two", "u8");
+
+    let expect = r#"
+#[allow(dead_code)]
+#[allow(clippy::all)]
+struct Foo {
+    one: u8,
+    two: u8,
+}"#;
+
+    assert_eq!(scope.to_string(), &expect[1..]);
+}
+
+#[test]
+fn enum_with_multiple_allow() {
+    let mut scope = Scope::new();
+
+    scope
+        .new_enum("IpAddrKind")
+        .allow("dead_code")
+        .allow("clippy::all")
+        .push_variant(Variant::new("V4"))
+        .push_variant(Variant::new("V6"));
+
+    let expect = r#"
+#[allow(dead_code)]
+#[allow(clippy::all)]
+enum IpAddrKind {
+    V4,
+    V6,
+}"#;
+
+    assert_eq!(scope.to_string(), &expect[1..]);
+}
