@@ -42,6 +42,44 @@ struct Foo {
 }
 
 #[test]
+fn struct_with_attribute() {
+    let mut scope = Scope::new();
+    let mut struct_ = Struct::new("Foo");
+    let field = Field::new("one", "usize");
+    struct_.push_field(field);
+    struct_.attribute("#[test]");
+    scope.push_struct(struct_);
+
+    let expect = r#"
+#[test]
+struct Foo {
+    one: usize,
+}"#;
+
+    assert_eq!(scope.to_string(), &expect[1..]);
+}
+
+#[test]
+fn struct_with_multiple_attributes() {
+    let mut scope = Scope::new();
+    let mut struct_ = Struct::new("Foo");
+    let field = Field::new("one", "usize");
+    struct_.push_field(field);
+    struct_.attribute("#[test]");
+    struct_.attribute("#[cfg(target_os = \"linux\")]");
+    scope.push_struct(struct_);
+
+    let expect = r#"
+#[test]
+#[cfg(target_os = "linux")]
+struct Foo {
+    one: usize,
+}"#;
+
+    assert_eq!(scope.to_string(), &expect[1..]);
+}
+
+#[test]
 fn single_struct_documented_field() {
     let mut scope = Scope::new();
 

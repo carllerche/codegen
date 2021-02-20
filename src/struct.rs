@@ -14,6 +14,9 @@ pub struct Struct {
 
     /// Struct fields
     fields: Fields,
+
+    /// The attributes for this struct.
+    attributes: Vec<String>,
 }
 
 impl Struct {
@@ -22,6 +25,7 @@ impl Struct {
         Struct {
             type_def: TypeDef::new(name),
             fields: Fields::Empty,
+            attributes: vec![],
         }
     }
 
@@ -60,6 +64,12 @@ impl Struct {
     /// Add a new type that the struct should derive.
     pub fn derive(&mut self, name: &str) -> &mut Self {
         self.type_def.derive(name);
+        self
+    }
+
+    /// Adds an attribute to the struct (e.g. `"#[some_attribute]"`)
+    pub fn attribute(&mut self, attribute: &str) -> &mut Self {
+        self.attributes.push(attribute.to_string());
         self
     }
 
@@ -110,6 +120,9 @@ impl Struct {
 
     /// Formats the struct using the given formatter.
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
+        for m in self.attributes.iter() {
+            write!(fmt, "{}\n", m)?;
+        }
         self.type_def.fmt_head("struct", &[], fmt)?;
         self.fields.fmt(fmt)?;
 
