@@ -16,10 +16,10 @@ pub enum Fields {
 impl Fields {
     pub fn push_named(&mut self, field: Field) -> &mut Self {
         match *self {
-            Fields::Empty => {
-                *self = Fields::Named(vec![field]);
+            Self::Empty => {
+                *self = Self::Named(vec![field]);
             }
-            Fields::Named(ref mut fields) => {
+            Self::Named(fields) => {
                 fields.push(field);
             }
             _ => panic!("field list is named"),
@@ -44,11 +44,11 @@ impl Fields {
     where
         T: Into<Type>,
     {
-        match *self {
-            Fields::Empty => {
-                *self = Fields::Tuple(vec![ty.into()]);
+        match self {
+            Self::Empty => {
+                *self = Self::Tuple(vec![ty.into()]);
             }
-            Fields::Tuple(ref mut fields) => {
+            Self::Tuple(fields) => {
                 fields.push(ty.into());
             }
             _ => panic!("field list is tuple"),
@@ -59,30 +59,30 @@ impl Fields {
 
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         match *self {
-            Fields::Named(ref fields) => {
+            Self::Named(ref fields) => {
                 assert!(!fields.is_empty());
 
                 fmt.block(|fmt| {
                     for f in fields {
                         if !f.documentation.is_empty() {
                             for doc in &f.documentation {
-                                write!(fmt, "/// {}\n", doc)?;
+                                writeln!(fmt, "/// {}", doc)?;
                             }
                         }
                         if !f.annotation.is_empty() {
                             for ann in &f.annotation {
-                                write!(fmt, "{}\n", ann)?;
+                                writeln!(fmt, "{}", ann)?;
                             }
                         }
                         write!(fmt, "{}: ", f.name)?;
                         f.ty.fmt(fmt)?;
-                        write!(fmt, ",\n")?;
+                        writeln!(fmt, ",")?;
                     }
 
                     Ok(())
                 })?;
             }
-            Fields::Tuple(ref tys) => {
+            Self::Tuple(tys) => {
                 assert!(!tys.is_empty());
 
                 write!(fmt, "(")?;
@@ -96,7 +96,7 @@ impl Fields {
 
                 write!(fmt, ")")?;
             }
-            Fields::Empty => {}
+            Self::Empty => {}
         }
 
         Ok(())

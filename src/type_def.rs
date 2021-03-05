@@ -22,7 +22,7 @@ pub struct TypeDef {
 impl TypeDef {
     /// Return a structure definition with the provided name
     pub fn new(name: &str) -> Self {
-        TypeDef {
+        Self {
             ty: Type::new(name),
             vis: None,
             docs: None,
@@ -107,7 +107,7 @@ impl TypeDef {
         Ok(())
     }
 
-    fn fmt_allow(&self, fmt: &mut Formatter) -> fmt::Result {
+    fn fmt_allow(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         for allow in &self.allow {
             write!(fmt, "#[allow({})]\n", allow)?;
         }
@@ -117,7 +117,7 @@ impl TypeDef {
 
     fn fmt_repr(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         if let Some(ref repr) = self.repr {
-            write!(fmt, "#[repr({})]\n", repr)?;
+            writeln!(fmt, "#[repr({})]", repr)?;
         }
 
         Ok(())
@@ -134,7 +134,7 @@ impl TypeDef {
                 write!(fmt, "{}", name)?;
             }
 
-            write!(fmt, ")]\n")?;
+            writeln!(fmt, ")]")?;
         }
 
         Ok(())
@@ -142,7 +142,7 @@ impl TypeDef {
 
     fn fmt_macros(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         for m in self.macros.iter() {
-            write!(fmt, "{}\n", m)?;
+            writeln!(fmt, "{}", m)?;
         }
         Ok(())
     }

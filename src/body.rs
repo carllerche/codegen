@@ -12,8 +12,8 @@ pub enum Body {
 impl Body {
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         match &self {
-            Body::String(s) => write!(fmt, "{}\n", s),
-            Body::Block(b) => b.fmt(fmt),
+            Self::String(s) => write!(fmt, "{}\n", s),
+            Self::Block(b) => b.fmt(fmt),
         }
     }
 }

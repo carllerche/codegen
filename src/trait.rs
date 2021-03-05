@@ -21,7 +21,7 @@ pub struct Trait {
 impl Trait {
     /// Return a trait definition with the provided name
     pub fn new(name: &str) -> Self {
-        Trait {
+        Self {
             type_def: TypeDef::new(name),
             parents: vec![],
             associated_tys: vec![],
@@ -31,7 +31,7 @@ impl Trait {
     }
 
     /// Returns a reference to the type
-    pub fn ty(&self) -> &Type {
+    pub const fn ty(&self) -> &Type {
         &self.type_def.ty
     }
 
@@ -122,13 +122,13 @@ impl Trait {
                         fmt_bound_rhs(&ty.bound, fmt)?;
                     }
 
-                    write!(fmt, ";\n")?;
+                    writeln!(fmt, ";")?;
                 }
             }
 
             for (i, func) in self.fns.iter().enumerate() {
                 if i != 0 || !assoc.is_empty() {
-                    write!(fmt, "\n")?;
+                    writeln!(fmt)?;
                 }
 
                 func.fmt(true, fmt)?;

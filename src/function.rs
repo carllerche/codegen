@@ -56,7 +56,7 @@ pub struct Function {
 impl Function {
     /// Return a new function definition.
     pub fn new(name: &str) -> Self {
-        Function {
+        Self {
             name: name.to_string(),
             docs: None,
             allow: None,
@@ -214,12 +214,12 @@ impl Function {
             docs.fmt(fmt)?;
         }
 
-        if let Some(ref allow) = self.allow {
-            write!(fmt, "#[allow({})]\n", allow)?;
+        if let Some(allow) = &self.allow {
+            writeln!(fmt, "#[allow({})]", allow)?;
         }
 
         for attr in self.attributes.iter() {
-            write!(fmt, "#[{}]\n", attr)?;
+            writeln!(fmt, "#[{}]", attr)?;
         }
 
         if is_trait {
@@ -229,11 +229,11 @@ impl Function {
             );
         }
 
-        if let Some(ref vis) = self.vis {
+        if let Some(vis) = &self.vis {
             write!(fmt, "{} ", vis)?;
         }
 
-        if let Some(ref extern_abi) = self.extern_abi {
+        if let Some(extern_abi) = &self.extern_abi {
             write!(fmt, "extern \"{extern_abi}\" ", extern_abi = extern_abi)?;
         }
 
@@ -246,7 +246,7 @@ impl Function {
 
         write!(fmt, "(")?;
 
-        if let Some(ref s) = self.arg_self {
+        if let Some(s) = &self.arg_self {
             write!(fmt, "{}", s)?;
         }
 
@@ -261,15 +261,15 @@ impl Function {
 
         write!(fmt, ")")?;
 
-        if let Some(ref ret) = self.ret {
+        if let Some(ret) = &self.ret {
             write!(fmt, " -> ")?;
             ret.fmt(fmt)?;
         }
 
         fmt_bounds(&self.bounds, fmt)?;
 
-        match self.body {
-            Some(ref body) => fmt.block(|fmt| {
+        match &self.body {
+            Some(body) => fmt.block(|fmt| {
                 for b in body {
                     b.fmt(fmt)?;
                 }
@@ -281,7 +281,7 @@ impl Function {
                     panic!("impl blocks must define fn bodies");
                 }
 
-                write!(fmt, ";\n")
+                writeln!(fmt, ";")
             }
         }
     }

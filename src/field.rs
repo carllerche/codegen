@@ -22,7 +22,7 @@ impl Field {
     where
         T: Into<Type>,
     {
-        Field {
+        Self {
             name: name.into(),
             ty: ty.into(),
             documentation: Vec::new(),

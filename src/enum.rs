@@ -16,14 +16,14 @@ pub struct Enum {
 impl Enum {
     /// Return a enum definition with the provided name.
     pub fn new(name: &str) -> Self {
-        Enum {
+        Self {
             type_def: TypeDef::new(name),
             variants: vec![],
         }
     }
 
     /// Returns a reference to the type.
-    pub fn ty(&self) -> &Type {
+    pub const fn ty(&self) -> &Type {
         &self.type_def.ty
     }
 

@@ -10,7 +10,7 @@ pub struct Import {
 impl Import {
     /// Return a new import.
     pub fn new(path: &str, ty: &str) -> Self {
-        Import {
+        Self {
             line: format!("{}::{}", path, ty),
             vis: None,
         }

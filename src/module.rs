@@ -29,7 +29,7 @@ pub struct Module {
 impl Module {
     /// Return a new, blank module
     pub fn new(name: &str) -> Self {
-        Module {
+        Self {
             name: name.to_string(),
             vis: None,
             docs: None,
@@ -69,12 +69,12 @@ impl Module {
     /// will return the existing definition instead.
     ///
     /// [`get_or_new_module`]: #method.get_or_new_module
-    pub fn new_module(&mut self, name: &str) -> &mut Module {
+    pub fn new_module(&mut self, name: &str) -> &mut Self {
         self.scope.new_module(name)
     }
 
     /// Returns a reference to a module if it is exists in this scope.
-    pub fn get_module<Q: ?Sized>(&self, name: &Q) -> Option<&Module>
+    pub fn get_module<Q: ?Sized>(&self, name: &Q) -> Option<&Self>
     where
         String: PartialEq<Q>,
     {
@@ -82,7 +82,7 @@ impl Module {
     }
 
     /// Returns a mutable reference to a module if it is exists in this scope.
-    pub fn get_module_mut<Q: ?Sized>(&mut self, name: &Q) -> Option<&mut Module>
+    pub fn get_module_mut<Q: ?Sized>(&mut self, name: &Q) -> Option<&mut Self>
     where
         String: PartialEq<Q>,
     {
@@ -91,7 +91,7 @@ impl Module {
 
     /// Returns a mutable reference to a module, creating it if it does
     /// not exist.
-    pub fn get_or_new_module(&mut self, name: &str) -> &mut Module {
+    pub fn get_or_new_module(&mut self, name: &str) -> &mut Self {
         self.scope.get_or_new_module(name)
     }
 
@@ -107,7 +107,7 @@ impl Module {
     /// return the existing definition instead.
     ///
     /// [`get_or_new_module`]: #method.get_or_new_module
-    pub fn push_module(&mut self, item: Module) -> &mut Self {
+    pub fn push_module(&mut self, item: Self) -> &mut Self {
         self.scope.push_module(item);
         self
     }
