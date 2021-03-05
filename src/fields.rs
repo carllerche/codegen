@@ -15,7 +15,7 @@ pub enum Fields {
 
 impl Fields {
     pub fn push_named(&mut self, field: Field) -> &mut Self {
-        match self {
+        match *self {
             Self::Empty => {
                 *self = Self::Named(vec![field]);
             }
@@ -58,8 +58,8 @@ impl Fields {
     }
 
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
-        match &self {
-            Self::Named(fields) => {
+        match *self {
+            Self::Named(ref fields) => {
                 assert!(!fields.is_empty());
 
                 fmt.block(|fmt| {

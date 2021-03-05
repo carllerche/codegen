@@ -12,7 +12,7 @@ pub enum Body {
 impl Body {
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         match &self {
-            Self::String(s) => writeln!(fmt, "{}", s),
+            Self::String(s) => write!(fmt, "{}\n", s),
             Self::Block(b) => b.fmt(fmt),
         }
     }

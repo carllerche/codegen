@@ -210,7 +210,7 @@ impl Function {
 
     /// Formats the function using the given formatter.
     pub fn fmt(&self, is_trait: bool, fmt: &mut Formatter<'_>) -> fmt::Result {
-        if let Some(docs) = &self.docs {
+        if let Some(ref docs) = self.docs {
             docs.fmt(fmt)?;
         }
 
