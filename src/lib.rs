@@ -25,6 +25,7 @@
 //! println!("{}", scope.to_string());
 //! ```
 
+mod associated_const;
 mod associated_type;
 mod block;
 mod body;
@@ -47,7 +48,7 @@ mod r#struct;
 mod r#trait;
 mod r#type;
 
-
+pub use associated_const::*;
 pub use associated_type::*;
 pub use block::*;
 pub use field::*;

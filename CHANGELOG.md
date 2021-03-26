@@ -1,5 +1,8 @@
 # <future version>
 
+### Added
+- Add support for associated constants
+
 ### Changed
 - updated the crate to rust 2018 edition
 

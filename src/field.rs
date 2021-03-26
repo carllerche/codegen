@@ -14,6 +14,9 @@ pub struct Field {
 
     /// Field annotation
     pub annotation: Vec<String>,
+
+    /// Field value
+    pub value: String,
 }
 
 impl Field {
@@ -27,6 +30,7 @@ impl Field {
             ty: ty.into(),
             documentation: Vec::new(),
             annotation: Vec::new(),
+            value: String::new(),
         }
     }
 

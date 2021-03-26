@@ -19,6 +19,9 @@ pub struct Impl {
     /// If implementing a trait
     impl_trait: Option<Type>,
 
+    /// Associated constants
+    assoc_csts: Vec<Field>,
+
     /// Associated types
     assoc_tys: Vec<Field>,
 
@@ -40,6 +43,7 @@ impl Impl {
             target: target.into(),
             generics: vec![],
             impl_trait: None,
+            assoc_csts: vec![],
             assoc_tys: vec![],
             bounds: vec![],
             fns: vec![],
@@ -79,6 +83,22 @@ impl Impl {
         self
     }
 
+    /// Set an associated constant.
+    pub fn associate_const<T>(&mut self, name: &str, ty: T, value: &str) -> &mut Self
+    where
+        T: Into<Type>,
+    {
+        self.assoc_csts.push(Field {
+            name: name.to_string(),
+            ty: ty.into(),
+            documentation: Vec::new(),
+            annotation: Vec::new(),
+            value: value.to_string(),
+        });
+
+        self
+    }
+
     /// Set an associated type.
     pub fn associate_type<T>(&mut self, name: &str, ty: T) -> &mut Self
     where
@@ -89,6 +109,7 @@ impl Impl {
             ty: ty.into(),
             documentation: Vec::new(),
             annotation: Vec::new(),
+            value: String::new(),
         });
 
         self
@@ -138,6 +159,15 @@ impl Impl {
         fmt_bounds(&self.bounds, fmt)?;
 
         fmt.block(|fmt| {
+            // format associated constants
+            if !self.assoc_csts.is_empty() {
+                for cst in &self.assoc_csts {
+                    write!(fmt, "const {}: ", cst.name)?;
+                    cst.ty.fmt(fmt)?;
+                    write!(fmt, " = {};\n", cst.value)?;
+                }
+            }
+
             // format associated types
             if !self.assoc_tys.is_empty() {
                 for ty in &self.assoc_tys {
