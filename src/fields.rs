@@ -37,6 +37,7 @@ impl Fields {
             ty: ty.into(),
             documentation: Vec::new(),
             annotation: Vec::new(),
+            value: String::new(),
         })
     }
 
