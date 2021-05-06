@@ -162,6 +162,12 @@ impl Module {
         self
     }
 
+    /// Push a raw string
+    pub fn push_raw(&mut self, item: &str) -> &mut Self {
+        self.scope.raw(item);
+        self
+    }
+
     /// Formats the module using the given formatter.
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         if let Some(ref vis) = self.vis {
