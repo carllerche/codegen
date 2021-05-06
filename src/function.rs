@@ -51,6 +51,8 @@ pub struct Function {
 
     /// Whether or not this function is `async` or not
     r#async: bool,
+
+    macros: Vec<String>,
 }
 
 impl Function {
@@ -70,6 +72,7 @@ impl Function {
             attributes: vec![],
             extern_abi: None,
             r#async: false,
+            macros: vec![],
         }
     }
 
@@ -82,6 +85,12 @@ impl Function {
     /// Specify lint attribute to supress a warning or error.
     pub fn allow(&mut self, allow: &str) -> &mut Self {
         self.allow = Some(allow.to_string());
+        self
+    }
+
+    /// Add a macro to the function (e.g. `"#[tokio::main]"`)
+    pub fn r#macro(&mut self, r#macro: &str) -> &mut Self {
+        self.macros.push(r#macro.to_string());
         self
     }
 
@@ -212,6 +221,10 @@ impl Function {
     pub fn fmt(&self, is_trait: bool, fmt: &mut Formatter<'_>) -> fmt::Result {
         if let Some(ref docs) = self.docs {
             docs.fmt(fmt)?;
+        }
+
+        for m in self.macros.iter() {
+            write!(fmt, "{}\n", m)?;
         }
 
         if let Some(ref allow) = self.allow {

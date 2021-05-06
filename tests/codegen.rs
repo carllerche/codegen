@@ -563,6 +563,24 @@ impl Foo for Bar {
 }
 
 #[test]
+fn fn_with_macro() {
+    let mut scope = Scope::new();
+    let f = scope.new_fn("main");
+    f.r#macro("#[tokio::main]");
+    f.set_async(true);
+    f.ret(Type::new("Result<(), Box<dyn std::error::Error>>"));
+    f.line("println!(\"petting Toby many times because he is such a good boi\");");
+
+    let expect = r#"
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    println!("petting Toby many times because he is such a good boi");
+}"#;
+
+    assert_eq!(scope.to_string(), &expect[1..]);
+}
+
+#[test]
 fn struct_with_multiple_allow() {
     let mut scope = Scope::new();
 
