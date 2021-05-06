@@ -470,6 +470,21 @@ mod foo {
 }
 
 #[test]
+fn module_raw() {
+    let mut scope = Scope::new();
+    let m = scope.new_module("foo");
+    m.vis("pub")
+     .push_raw("tonic::include_proto!(\"myproto\");");
+
+    let expect = r#"
+pub mod foo {
+    tonic::include_proto!("myproto");
+}"#;
+
+    assert_eq!(scope.to_string(), &expect[1..]);
+}
+
+#[test]
 fn get_or_new_module() {
     let mut scope = Scope::new();
     assert!(scope.get_module("foo").is_none());
