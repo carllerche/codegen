@@ -75,6 +75,12 @@ impl Struct {
         self
     }
 
+    /// Add a macro to the struct def (e.g. `"#[serde(...)]"`)
+    pub fn r#macro(&mut self, name: &str) -> &mut Self {
+        self.type_def.r#macro(name);
+        self
+    }
+
     /// Push a named field to the struct.
     ///
     /// A struct can either set named fields with this function or tuple fields
