@@ -54,6 +54,7 @@ pub use field::*;
 pub use formatter::*;
 pub use function::*;
 pub use import::*;
+pub use item::*;
 pub use module::*;
 pub use scope::*;
 pub use variant::*;
