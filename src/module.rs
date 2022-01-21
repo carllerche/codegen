@@ -24,6 +24,9 @@ pub struct Module {
 
     /// Contents of the module
     scope: Scope,
+
+    /// Module attributes, e.g, `#[cfg(test)]`
+    attributes: Vec<String>,
 }
 
 impl Module {
@@ -34,6 +37,7 @@ impl Module {
             vis: None,
             docs: None,
             scope: Scope::new(),
+            attributes: vec![],
         }
     }
 
@@ -162,8 +166,27 @@ impl Module {
         self
     }
 
+    /// Add an attribute to the module.
+    ///
+    /// ```
+    /// use codegen::Module;
+    ///
+    /// let mut module = Module::new("test");
+    ///
+    /// // add a `#[cfg(test)]` attribute
+    /// module.attr("cfg(test)");
+    /// ```
+    pub fn attr(&mut self, attribute: &str) -> &mut Self {
+        self.attributes.push(attribute.to_string());
+        self
+    }
+
     /// Formats the module using the given formatter.
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
+        for attr in self.attributes.iter() {
+            write!(fmt, "#[{}]\n", attr)?;
+        }
+
         if let Some(ref vis) = self.vis {
             write!(fmt, "{} ", vis)?;
         }
