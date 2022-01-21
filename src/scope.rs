@@ -233,6 +233,11 @@ impl Scope {
         ret
     }
 
+    /// Return the items in the scope.
+    pub fn items(&self) -> &Vec<Item> {
+        &self.items
+    }
+
     /// Formats the scope using the given formatter.
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
         self.fmt_imports(fmt)?;
