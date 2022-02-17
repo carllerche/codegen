@@ -1,4 +1,4 @@
-use std::fmt::{self, Write};
+use std::fmt::{self, Debug, Write};
 
 use indexmap::IndexMap;
 
@@ -13,6 +13,7 @@ use crate::r#enum::Enum;
 use crate::r#impl::Impl;
 use crate::r#struct::Struct;
 use crate::r#trait::Trait;
+use crate::type_alias::TypeAlias;
 
 /// Defines a scope.
 ///
@@ -219,6 +220,22 @@ impl Scope {
         self
     }
 
+    /// Push a new `TypeAlias`, returning a mutable reference to it.
+    pub fn new_type_alias(&mut self, name: &str, target: &str) -> &mut TypeAlias {
+        self.push_type_alias(TypeAlias::new(name, target));
+
+        match *self.items.last_mut().unwrap() {
+            Item::TypeAlias(ref mut v) => v,
+            _ => unreachable!(),
+        }
+    }
+
+    /// Push an `TypeAlias`.
+    pub fn push_type_alias(&mut self, item: TypeAlias) -> &mut Self {
+        self.items.push(Item::TypeAlias(item));
+        self
+    }
+
     /// Return a string representation of the scope.
     pub fn to_string(&self) -> String {
         let mut ret = String::new();
@@ -256,6 +273,7 @@ impl Scope {
                 Item::Raw(ref v) => {
                     write!(fmt, "{}\n", v)?;
                 }
+                Item::TypeAlias(ref v) => v.fmt(fmt)?,
             }
         }
 

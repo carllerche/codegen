@@ -24,6 +24,19 @@ struct Foo {
 
     assert_eq!(scope.to_string(), &expect[1..]);
 }
+#[test]
+fn type_alias() {
+    let mut scope = Scope::new();
+
+    scope
+        .new_type_alias("hello", "world").vis("pub");
+
+    let expect = r#"
+pub type hello = world;"#;
+
+    assert_eq!(scope.to_string(), &expect[1..]);
+}
+
 
 #[test]
 fn struct_with_pushed_field() {
