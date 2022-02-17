@@ -46,7 +46,7 @@ mod r#impl;
 mod r#struct;
 mod r#trait;
 mod r#type;
-
+mod type_alias;
 
 pub use associated_type::*;
 pub use block::*;
