@@ -4,6 +4,7 @@ use crate::bound::Bound;
 use crate::field::Field;
 use crate::formatter::{fmt_bounds, fmt_generics, Formatter};
 use crate::function::Function;
+use crate::associated_constant::AssociatedConstant;
 
 use crate::r#type::Type;
 
@@ -18,6 +19,9 @@ pub struct Impl {
 
     /// If implementing a trait
     impl_trait: Option<Type>,
+
+    /// Associated constants
+    associated_constants: Vec<AssociatedConstant>,
 
     /// Associated types
     assoc_tys: Vec<Field>,
@@ -40,6 +44,7 @@ impl Impl {
             target: target.into(),
             generics: vec![],
             impl_trait: None,
+            associated_constants: vec![],
             assoc_tys: vec![],
             bounds: vec![],
             fns: vec![],
@@ -71,6 +76,24 @@ impl Impl {
     {
         self.impl_trait = Some(ty.into());
         self
+    }
+
+    /// Push an associated constant to the impl block
+    pub fn push_associated_constant(&mut self, constant: AssociatedConstant) -> &mut Self
+    {
+        self.associated_constants.push(constant);
+        self
+    }
+
+    /// Create an associated constant for the impl block
+    pub fn new_associated_constant<Type>(&mut self, name: &str, datatype: Type) -> &mut AssociatedConstant
+    where
+        Type: Into<crate::r#type::Type>
+    {
+        self.push_associated_constant(
+            AssociatedConstant::new(name, datatype));
+
+        self.associated_constants.last_mut().unwrap()
     }
 
     /// Add a macro to the impl block (e.g. `"#[async_trait]"`)
@@ -144,6 +167,13 @@ impl Impl {
                     write!(fmt, "type {} = ", ty.name)?;
                     ty.ty.fmt(fmt)?;
                     write!(fmt, ";\n")?;
+                }
+            }
+
+            if !self.associated_constants.is_empty() {
+                for constant in &self.associated_constants {
+                    constant.fmt(fmt)?;
+                    write!(fmt, "\n")?;
                 }
             }
 

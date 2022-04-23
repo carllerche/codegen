@@ -1,5 +1,6 @@
 use std::fmt::{self, Write};
 
+use crate::AssociatedConstant;
 use crate::associated_type::AssociatedType;
 use crate::bound::Bound;
 use crate::formatter::{fmt_bound_rhs, Formatter};
@@ -14,6 +15,7 @@ pub struct Trait {
     type_def: TypeDef,
     parents: Vec<Type>,
     associated_tys: Vec<AssociatedType>,
+    associated_constants: Vec<AssociatedConstant>,
     fns: Vec<Function>,
     macros: Vec<String>,
 }
@@ -25,6 +27,7 @@ impl Trait {
             type_def: TypeDef::new(name),
             parents: vec![],
             associated_tys: vec![],
+            associated_constants: vec![],
             fns: vec![],
             macros: vec![],
         }
@@ -88,6 +91,25 @@ impl Trait {
         self.associated_tys.last_mut().unwrap()
     }
 
+    /// Push an associated constant to the trait block
+    pub fn push_associated_constant(&mut self, constant: AssociatedConstant) -> &mut Self
+    {
+        self.associated_constants.push(constant);
+        self
+    }
+
+
+    /// Create an associated constant for the trait block
+    pub fn new_associated_constant<Type>(&mut self, name: &str, datatype: Type) -> &mut AssociatedConstant
+    where
+        Type: Into<crate::r#type::Type>
+    {
+        self.push_associated_constant(
+            AssociatedConstant::new(name, datatype));
+
+        self.associated_constants.last_mut().unwrap()
+    }
+
     /// Push a new function definition, returning a mutable reference to it.
     pub fn new_fn(&mut self, name: &str) -> &mut Function {
         let mut func = Function::new(name);
@@ -123,6 +145,13 @@ impl Trait {
                     }
 
                     write!(fmt, ";\n")?;
+                }
+            }
+
+            if !self.associated_constants.is_empty() {
+                for constant in &self.associated_constants {
+                    constant.fmt(fmt)?;
+                    write!(fmt, "\n")?;
                 }
             }
 

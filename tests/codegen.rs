@@ -605,3 +605,51 @@ enum IpAddrKind {
 
     assert_eq!(scope.to_string(), &expect[1..]);
 }
+
+#[test]
+fn impl_with_associated_constants() {
+    let mut scope = Scope::new();
+
+    let constant1 = AssociatedConstant::new("BAR", "usize");
+    let mut constant2 = AssociatedConstant::new("BAZ", "i16");
+    constant2.value("22");
+
+    let current_impl = scope.new_impl("Foo")
+        .push_associated_constant(constant1)
+        .push_associated_constant(constant2);
+
+    current_impl.new_associated_constant("QUX", "usize").value("43");
+
+    let expect = r#"
+impl Foo {
+    const BAR: usize;
+    const BAZ: i16 = 22;
+    const QUX: usize = 43;
+}"#;
+
+    assert_eq!(scope.to_string(), &expect[1..]);
+}
+
+#[test]
+fn trait_with_associated_constants() {
+    let mut scope = Scope::new();
+
+    let constant1 = AssociatedConstant::new("BAR", "usize");
+    let mut constant2 = AssociatedConstant::new("BAZ", "i16");
+    constant2.value("22");
+
+    let current_trait = scope.new_trait("Foo")
+        .push_associated_constant(constant1)
+        .push_associated_constant(constant2);
+
+    current_trait.new_associated_constant("QUX", "usize").value("43");
+
+    let expect = r#"
+trait Foo {
+    const BAR: usize;
+    const BAZ: i16 = 22;
+    const QUX: usize = 43;
+}"#;
+
+    assert_eq!(scope.to_string(), &expect[1..]);
+}
