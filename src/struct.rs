@@ -96,6 +96,17 @@ impl Struct {
         self
     }
 
+    /// Create a named field for the struct.
+    ///
+    /// A struct can either set named fields with this function or tuple fields
+    /// with `tuple_field`, but not both.
+    pub fn new_field<T>(&mut self, name: &str, ty: T) -> &mut Field
+    where
+        T: Into<Type>,
+    {
+        self.fields.new_named(name, ty)
+    }
+
     /// Add a tuple field to the struct.
     ///
     /// A struct can either set tuple fields with this function or named fields

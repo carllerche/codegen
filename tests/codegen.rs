@@ -605,3 +605,24 @@ enum IpAddrKind {
 
     assert_eq!(scope.to_string(), &expect[1..]);
 }
+
+#[test]
+fn struct_with_member_visibility() {
+    let mut scope = Scope::new();
+
+    let struct_description = scope.new_struct("Foo");
+
+    let mut bar = Field::new("bar", "usize");
+    bar.vis("pub");
+
+    struct_description.push_field(bar);
+    struct_description.new_field("baz", "i16").vis("pub(crate)");
+
+    let expect = r#"
+struct Foo {
+    pub bar: usize,
+    pub(crate) baz: i16,
+}"#;
+
+    assert_eq!(scope.to_string(), &expect[1..]);
+}

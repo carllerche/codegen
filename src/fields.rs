@@ -37,7 +37,21 @@ impl Fields {
             ty: ty.into(),
             documentation: Vec::new(),
             annotation: Vec::new(),
+            visibility: None,
         })
+    }
+
+    pub fn new_named<T>(&mut self, name: &str, ty: T) -> &mut Field
+    where
+        T: Into<Type>,
+    {
+        self.named(name, ty);
+        if let Fields::Named(ref mut fields) = *self {
+            fields.last_mut().unwrap()
+        }
+        else {
+            unreachable!()
+        }
     }
 
     pub fn tuple<T>(&mut self, ty: T) -> &mut Self
@@ -73,6 +87,9 @@ impl Fields {
                             for ann in &f.annotation {
                                 write!(fmt, "{}\n", ann)?;
                             }
+                        }
+                        if let Some(visibility) = &f.visibility {
+                            write!(fmt, "{} ", visibility)?;
                         }
                         write!(fmt, "{}: ", f.name)?;
                         f.ty.fmt(fmt)?;
