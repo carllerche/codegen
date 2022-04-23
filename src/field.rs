@@ -14,6 +14,9 @@ pub struct Field {
 
     /// Field annotation
     pub annotation: Vec<String>,
+
+    /// The visibility of the field
+    pub visibility: Option<String>,
 }
 
 impl Field {
@@ -27,6 +30,7 @@ impl Field {
             ty: ty.into(),
             documentation: Vec::new(),
             annotation: Vec::new(),
+            visibility: None,
         }
     }
 
@@ -39,6 +43,12 @@ impl Field {
     /// Set field's annotation.
     pub fn annotation(&mut self, annotation: Vec<&str>) -> &mut Self {
         self.annotation = annotation.iter().map(|ann| ann.to_string()).collect();
+        self
+    }
+
+    /// Set the visibility of the field
+    pub fn vis(&mut self, visibility: &str) -> &mut Self {
+        self.visibility = Some(visibility.to_string());
         self
     }
 }

@@ -129,11 +129,12 @@ impl Function {
         self.args.push(Field {
             name: name.to_string(),
             ty: ty.into(),
-            // While a `Field` is used here, both `documentation`
+            // While a `Field` is used here, both `documentation`, `visibility`
             // and `annotation` does not make sense for function arguments.
             // Simply use empty strings.
             documentation: Vec::new(),
             annotation: Vec::new(),
+            visibility: None,
         });
 
         self
