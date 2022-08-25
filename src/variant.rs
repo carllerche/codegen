@@ -10,6 +10,7 @@ use crate::r#type::Type;
 pub struct Variant {
     name: String,
     fields: Fields,
+    annotations: Vec<String>,
 }
 
 impl Variant {
@@ -18,6 +19,7 @@ impl Variant {
         Variant {
             name: name.to_string(),
             fields: Fields::Empty,
+            annotations: Vec::new(),
         }
     }
 
@@ -36,8 +38,18 @@ impl Variant {
         self
     }
 
+    /// Add an anotation to the variant.
+    pub fn annotation(&mut self, annotation: &str) -> &mut Self {
+        self.annotations.push(annotation.to_string());
+        self
+    }
+
     /// Formats the variant using the given formatter.
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
+        for a in &self.annotations {
+            write!(fmt, "{}", a)?;
+            write!(fmt, "\n")?;
+        }
         write!(fmt, "{}", self.name)?;
         self.fields.fmt(fmt)?;
         write!(fmt, ",\n")?;
