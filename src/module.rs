@@ -24,6 +24,9 @@ pub struct Module {
 
     /// Contents of the module
     scope: Scope,
+
+    /// Allows for the module
+    allow: Vec<String>,
 }
 
 impl Module {
@@ -34,6 +37,7 @@ impl Module {
             vis: None,
             docs: None,
             scope: Scope::new(),
+            allow: Vec::new(),
         }
     }
 
@@ -54,6 +58,12 @@ impl Module {
     /// module.
     pub fn import(&mut self, path: &str, ty: &str) -> &mut Self {
         self.scope.import(path, ty);
+        self
+    }
+
+    /// Add an allow annotation to the module.
+    pub fn allow(&mut self, allow: &str) -> &mut Self {
+        self.allow.push(allow.to_string());
         self
     }
 
@@ -164,6 +174,10 @@ impl Module {
 
     /// Formats the module using the given formatter.
     pub fn fmt(&self, fmt: &mut Formatter<'_>) -> fmt::Result {
+        for allow in &self.allow {
+            write!(fmt, "#[allow({})]\n", allow)?;
+        }
+
         if let Some(ref vis) = self.vis {
             write!(fmt, "{} ", vis)?;
         }

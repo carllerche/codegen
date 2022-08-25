@@ -1,4 +1,5 @@
-#![deny(missing_debug_implementations, missing_docs)]
+#![deny(missing_debug_implementations)]
+//#![deny(missing_debug_implementations, missing_docs)]
 #![doc(html_root_url = "https://docs.rs/codegen/0.1.1")]
 #![warn(rust_2018_idioms)]
 
@@ -54,6 +55,7 @@ pub use field::*;
 pub use formatter::*;
 pub use function::*;
 pub use import::*;
+pub use item::*;
 pub use module::*;
 pub use scope::*;
 pub use variant::*;
