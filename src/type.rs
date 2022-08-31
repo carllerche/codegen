@@ -3,7 +3,7 @@ use std::fmt::{self, Write};
 use crate::formatter::Formatter;
 
 /// Defines a type.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct Type {
     name: String,
     generics: Vec<Type>,
